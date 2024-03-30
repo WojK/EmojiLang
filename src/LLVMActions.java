@@ -129,7 +129,7 @@ public class LLVMActions extends EmojiLangBaseListener {
         }
     }
 
-    private void convertIfVariableType(Value v1, Value v2){
+    private void convertIfTypeIsVariable(Value v1, Value v2){
         if(v1.type == VarType.VARIABLE ){
             v1.convertFromVariableType(variables);
         }
@@ -142,7 +142,7 @@ public class LLVMActions extends EmojiLangBaseListener {
         Value v1 = stack.pop();
         Value v2 = stack.pop();
 
-        convertIfVariableType(v1,v2);
+        convertIfTypeIsVariable(v1,v2);
 
         if( v1.type == v2.type ) {
             if( v1.type == VarType.INT ){
@@ -162,7 +162,7 @@ public class LLVMActions extends EmojiLangBaseListener {
         Value v1 = stack.pop();
         Value v2 = stack.pop();
 
-        convertIfVariableType(v1,v2);
+        convertIfTypeIsVariable(v1,v2);
 
         if( v1.type == v2.type ) {
             if( v1.type == VarType.INT ){
@@ -183,7 +183,7 @@ public class LLVMActions extends EmojiLangBaseListener {
         Value v1 = stack.pop();
         Value v2 = stack.pop();
 
-        convertIfVariableType(v1,v2);
+        convertIfTypeIsVariable(v1,v2);
 
         if( v1.type == v2.type ) {
             if( v1.type == VarType.INT ){
@@ -204,7 +204,7 @@ public class LLVMActions extends EmojiLangBaseListener {
         Value v1 = stack.pop();
         Value v2 = stack.pop();
 
-        convertIfVariableType(v1,v2);
+        convertIfTypeIsVariable(v1,v2);
 
         if( v1.type == v2.type ) {
             if( v1.type == VarType.INT ){
@@ -217,6 +217,40 @@ public class LLVMActions extends EmojiLangBaseListener {
             }
         } else {
             error(ctx.getStart().getLine(), "Div type mismatch");
+        }
+    }
+
+    @Override
+    public void
+    enterBlockif(EmojiLangParser.BlockifContext ctx) {
+        LLVMGenerator.ifstart();
+    }
+
+    @Override
+    public void exitBlockif(EmojiLangParser.BlockifContext ctx) {
+        LLVMGenerator.ifend();
+    }
+    @Override
+    public void exitEqualFactor(EmojiLangParser.EqualFactorContext ctx){
+        //TODO: add to stack values
+    }
+
+    @Override
+    public void exitEqual(EmojiLangParser.EqualContext ctx) {
+        Value v1 = stack.pop();
+        Value v2 = stack.pop();
+
+        convertIfTypeIsVariable(v1,v2);
+
+        if( v1.type == v2.type ) {
+            if( v1.type == VarType.INT ){
+                LLVMGenerator.icmp_i32(v1.name, v2.name);
+            }
+            if( v1.type == VarType.REAL ){
+                LLVMGenerator.icmp_double(v1.name, v2.name);
+            }
+        } else {
+            error(ctx.getStart().getLine(), "Equal type mismatch");
         }
     }
 

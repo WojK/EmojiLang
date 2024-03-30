@@ -7,6 +7,19 @@ stat: ( declaration
     | assignment
     | read
     | print ) END_STAT
+    | if
+;
+
+if: IF '(' equal ')' OPEN_BRACKET blockif CLOSE_BRACKET
+;
+
+blockif: stat
+;
+
+equal: equalFactor '==' equalFactor
+;
+
+equalFactor: INT | REAL | ID
 ;
 
 declaration: DEC_KW ID '=' expression0
@@ -35,6 +48,9 @@ read: READ '(' ID ')'
 ;
 
 print: PRINT '(' (ID | INT | REAL)  ')'
+;
+
+IF: '🤔'
 ;
 
 READ: '📖'

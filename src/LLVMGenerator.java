@@ -1,7 +1,14 @@
+import java.util.Stack;
+
 public class LLVMGenerator {
     static String header_text = "";
     static String main_text = "";
     static int register = 1;
+    static int br = 0;
+
+
+    static Stack<Integer> brstack = new Stack<Integer>();
+
 
     static String generate(){
         String text = "";
@@ -54,7 +61,6 @@ public class LLVMGenerator {
 
     static void load_i32(String id){main_text += "%"+register+" = load i32, i32* %"+id +"\n"; register++;}
     static void load_double(String id){main_text += "%"+register+" = load double, double* %"+id+"\n"; register++;}
-
 
     static void declare_i32(String id){
         main_text += "%"+id+" = alloca i32\n";
@@ -118,6 +124,27 @@ public class LLVMGenerator {
 
     static void div_double(String val1, String val2){
         main_text += "%"+register+" = fdiv double "+val1+", "+val2+"\n";
+        register++;
+    }
+
+    static void ifstart(){
+        br++;
+        main_text += "br i1 %"+(register-1)+", label %true"+br+", label %false"+br+"\n";
+        main_text += "true"+br+":\n";
+        brstack.push(br);
+    }
+
+    static void ifend(){
+        int b = brstack.pop();
+        main_text += "false"+b+":\n";
+    }
+
+    static void icmp_i32(String v1, String v2){
+        main_text += "%"+register+" = icmp eq i32 "+v1+", "+v2+"\n";
+        register++;
+    }
+    static void icmp_double(String v1, String v2){
+        main_text += "%"+register+" = icmp eq double "+v1+", "+v2+"\n";
         register++;
     }
 }

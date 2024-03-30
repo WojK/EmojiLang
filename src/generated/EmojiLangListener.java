@@ -28,6 +28,46 @@ public interface EmojiLangListener extends ParseTreeListener {
 	 */
 	void exitStat(EmojiLangParser.StatContext ctx);
 	/**
+	 * Enter a parse tree produced by {@link EmojiLangParser#if}.
+	 * @param ctx the parse tree
+	 */
+	void enterIf(EmojiLangParser.IfContext ctx);
+	/**
+	 * Exit a parse tree produced by {@link EmojiLangParser#if}.
+	 * @param ctx the parse tree
+	 */
+	void exitIf(EmojiLangParser.IfContext ctx);
+	/**
+	 * Enter a parse tree produced by {@link EmojiLangParser#blockif}.
+	 * @param ctx the parse tree
+	 */
+	void enterBlockif(EmojiLangParser.BlockifContext ctx);
+	/**
+	 * Exit a parse tree produced by {@link EmojiLangParser#blockif}.
+	 * @param ctx the parse tree
+	 */
+	void exitBlockif(EmojiLangParser.BlockifContext ctx);
+	/**
+	 * Enter a parse tree produced by {@link EmojiLangParser#equal}.
+	 * @param ctx the parse tree
+	 */
+	void enterEqual(EmojiLangParser.EqualContext ctx);
+	/**
+	 * Exit a parse tree produced by {@link EmojiLangParser#equal}.
+	 * @param ctx the parse tree
+	 */
+	void exitEqual(EmojiLangParser.EqualContext ctx);
+	/**
+	 * Enter a parse tree produced by {@link EmojiLangParser#equalFactor}.
+	 * @param ctx the parse tree
+	 */
+	void enterEqualFactor(EmojiLangParser.EqualFactorContext ctx);
+	/**
+	 * Exit a parse tree produced by {@link EmojiLangParser#equalFactor}.
+	 * @param ctx the parse tree
+	 */
+	void exitEqualFactor(EmojiLangParser.EqualFactorContext ctx);
+	/**
 	 * Enter a parse tree produced by {@link EmojiLangParser#declaration}.
 	 * @param ctx the parse tree
 	 */
