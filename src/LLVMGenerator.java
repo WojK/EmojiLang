@@ -52,8 +52,8 @@ public class LLVMGenerator {
         register++;
     }
 
-    static void load_i32(String id){main_text += "%"+register+" = load i32, i32* %"+id; register++;}
-    static void load_double(String id){main_text += "%"+register+" = load double, double* %"+id; register++;}
+    static void load_i32(String id){main_text += "%"+register+" = load i32, i32* %"+id +"\n"; register++;}
+    static void load_double(String id){main_text += "%"+register+" = load double, double* %"+id+"\n"; register++;}
 
 
     static void declare_i32(String id){

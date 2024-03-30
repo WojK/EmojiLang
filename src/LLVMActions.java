@@ -15,17 +15,15 @@ class Value{
         this.type = type;
     }
 
-    public Value convertFromVariableType(Value value, Map<String, VarType> variables){
-        Value convertedValue = new Value(value.name, value.type);
-        if(variables.get(convertedValue.name) == VarType.INT){
-            LLVMGenerator.load_i32(value.name);
-            value.type = VarType.INT;
-        } else if (variables.get(convertedValue.name) == VarType.REAL) {
-            LLVMGenerator.load_double(value.name);
-            value.type = VarType.REAL;
+    public void convertFromVariableType(Map<String, VarType> variables){
+        if(variables.get(this.name) == VarType.INT){
+            LLVMGenerator.load_i32(this.name);
+            this.type = VarType.INT;
+        } else if (variables.get(this.name) == VarType.REAL) {
+            LLVMGenerator.load_double(this.name);
+            this.type = VarType.REAL;
         }
-        value.name = "%"+(LLVMGenerator.register-1);
-        return convertedValue;
+        this.name = "%"+(LLVMGenerator.register-1);
     }
 }
 
@@ -131,31 +129,20 @@ public class LLVMActions extends EmojiLangBaseListener {
         }
     }
 
+    private void convertIfVariableType(Value v1, Value v2){
+        if(v1.type == VarType.VARIABLE ){
+            v1.convertFromVariableType(variables);
+        }
+        if(v2.type == VarType.VARIABLE ){
+            v2.convertFromVariableType(variables);
+        }
+    }
     @Override
     public void exitAdd(EmojiLangParser.AddContext ctx) {
         Value v1 = stack.pop();
         Value v2 = stack.pop();
-        if(v1.type == VarType.VARIABLE ){
-            if(variables.get(v1.name) == VarType.INT){
-                LLVMGenerator.load_i32(v1.name);
-                v1.type = VarType.INT;
-            } else if (variables.get(v1.name) == VarType.REAL) {
-                LLVMGenerator.load_double(v1.name);
-                v1.type = VarType.REAL;
-            }
-            v1.name = "%"+(LLVMGenerator.register-1);
-        }
 
-        if(v2.type == VarType.VARIABLE ){
-            if(variables.get(v2.name) == VarType.INT){
-                LLVMGenerator.load_i32(v2.name);
-                v2.type = VarType.INT;
-            } else if (variables.get(v2.name) == VarType.REAL) {
-                LLVMGenerator.load_double(v2.name);
-                v2.type = VarType.REAL;
-            }
-            v2.name = "%"+(LLVMGenerator.register-1);
-        }
+        convertIfVariableType(v1,v2);
 
         if( v1.type == v2.type ) {
             if( v1.type == VarType.INT ){
@@ -174,13 +161,16 @@ public class LLVMActions extends EmojiLangBaseListener {
     public void exitSub(EmojiLangParser.SubContext ctx) {
         Value v1 = stack.pop();
         Value v2 = stack.pop();
+
+        convertIfVariableType(v1,v2);
+
         if( v1.type == v2.type ) {
             if( v1.type == VarType.INT ){
-                LLVMGenerator.sub_i32(v1.name, v2.name);
+                LLVMGenerator.sub_i32(v2.name, v1.name);
                 stack.push( new Value("%"+(LLVMGenerator.register-1), VarType.INT) );
             }
             if( v1.type == VarType.REAL ){
-                LLVMGenerator.sub_double(v1.name, v2.name);
+                LLVMGenerator.sub_double(v2.name, v1.name);
                 stack.push( new Value("%"+(LLVMGenerator.register-1), VarType.REAL) );
             }
         } else {
@@ -192,6 +182,9 @@ public class LLVMActions extends EmojiLangBaseListener {
     public void exitMult(EmojiLangParser.MultContext ctx) {
         Value v1 = stack.pop();
         Value v2 = stack.pop();
+
+        convertIfVariableType(v1,v2);
+
         if( v1.type == v2.type ) {
             if( v1.type == VarType.INT ){
                 LLVMGenerator.mult_i32(v1.name, v2.name);
@@ -210,13 +203,16 @@ public class LLVMActions extends EmojiLangBaseListener {
     public void exitDiv(EmojiLangParser.DivContext ctx) {
         Value v1 = stack.pop();
         Value v2 = stack.pop();
+
+        convertIfVariableType(v1,v2);
+
         if( v1.type == v2.type ) {
             if( v1.type == VarType.INT ){
-                LLVMGenerator.div_i32(v1.name, v2.name);
+                LLVMGenerator.div_i32(v2.name, v1.name);
                 stack.push( new Value("%"+(LLVMGenerator.register-1), VarType.INT) );
             }
             if( v1.type == VarType.REAL ){
-                LLVMGenerator.div_double(v1.name, v2.name);
+                LLVMGenerator.div_double(v2.name, v1.name);
                 stack.push( new Value("%"+(LLVMGenerator.register-1), VarType.REAL) );
             }
         } else {
