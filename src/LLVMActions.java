@@ -5,7 +5,7 @@ import java.util.HashMap;
 import java.util.Map;
 import java.util.Stack;
 
-enum VarType{ INT, REAL }
+enum VarType{ INT, REAL, VARIABLE }
 
 class Value{
     public String name;
@@ -13,6 +13,19 @@ class Value{
     public Value( String name, VarType type ){
         this.name = name;
         this.type = type;
+    }
+
+    public Value convertFromVariableType(Value value, Map<String, VarType> variables){
+        Value convertedValue = new Value(value.name, value.type);
+        if(variables.get(convertedValue.name) == VarType.INT){
+            LLVMGenerator.load_i32(value.name);
+            value.type = VarType.INT;
+        } else if (variables.get(convertedValue.name) == VarType.REAL) {
+            LLVMGenerator.load_double(value.name);
+            value.type = VarType.REAL;
+        }
+        value.name = "%"+(LLVMGenerator.register-1);
+        return convertedValue;
     }
 }
 
@@ -63,6 +76,14 @@ public class LLVMActions extends EmojiLangBaseListener {
         stack.push( new Value(ctx.REAL().getText(), VarType.REAL) );
     }
     @Override
+    public void exitVar(EmojiLangParser.VarContext ctx) {
+        String ID = ctx.ID().getText();
+        if(!variables.containsKey(ID)) error(ctx.getStart().getLine(), "Unknown variable "+ID);
+
+        stack.push( new Value(ID, VarType.VARIABLE) );
+    }
+
+    @Override
     public void exitProg(EmojiLangParser.ProgContext ctx) {
         System.out.println( LLVMGenerator.generate() );
     }
@@ -91,6 +112,115 @@ public class LLVMActions extends EmojiLangBaseListener {
             LLVMGenerator.printf_value_double(realValue);
         }else{
             error(ctx.getStart().getLine(), "Invalid print statement");
+        }
+    }
+
+    @Override
+    public void exitRead(EmojiLangParser.ReadContext ctx) {
+        String ID = ctx.ID().getText();
+        if( ! variables.containsKey(ID) ) {
+            error(ctx.getStart().getLine(), "Undeclared variable");
+        }
+        VarType type = variables.get(ID);
+        if( type== VarType.INT){
+            LLVMGenerator.scanf(ID);
+        }else if (type == VarType.REAL){
+            LLVMGenerator.scanf_double(ID);
+        }else{
+            error(ctx.getStart().getLine(), "Can't read value");
+        }
+    }
+
+    @Override
+    public void exitAdd(EmojiLangParser.AddContext ctx) {
+        Value v1 = stack.pop();
+        Value v2 = stack.pop();
+        if(v1.type == VarType.VARIABLE ){
+            if(variables.get(v1.name) == VarType.INT){
+                LLVMGenerator.load_i32(v1.name);
+                v1.type = VarType.INT;
+            } else if (variables.get(v1.name) == VarType.REAL) {
+                LLVMGenerator.load_double(v1.name);
+                v1.type = VarType.REAL;
+            }
+            v1.name = "%"+(LLVMGenerator.register-1);
+        }
+
+        if(v2.type == VarType.VARIABLE ){
+            if(variables.get(v2.name) == VarType.INT){
+                LLVMGenerator.load_i32(v2.name);
+                v2.type = VarType.INT;
+            } else if (variables.get(v2.name) == VarType.REAL) {
+                LLVMGenerator.load_double(v2.name);
+                v2.type = VarType.REAL;
+            }
+            v2.name = "%"+(LLVMGenerator.register-1);
+        }
+
+        if( v1.type == v2.type ) {
+            if( v1.type == VarType.INT ){
+                LLVMGenerator.add_i32(v1.name, v2.name);
+                stack.push( new Value("%"+(LLVMGenerator.register-1), VarType.INT) );
+            }
+            if( v1.type == VarType.REAL ){
+                LLVMGenerator.add_double(v1.name, v2.name);
+                stack.push( new Value("%"+(LLVMGenerator.register-1), VarType.REAL) );
+            }
+        } else {
+            error(ctx.getStart().getLine(), "Add type mismatch");
+        }
+    }
+    @Override
+    public void exitSub(EmojiLangParser.SubContext ctx) {
+        Value v1 = stack.pop();
+        Value v2 = stack.pop();
+        if( v1.type == v2.type ) {
+            if( v1.type == VarType.INT ){
+                LLVMGenerator.sub_i32(v1.name, v2.name);
+                stack.push( new Value("%"+(LLVMGenerator.register-1), VarType.INT) );
+            }
+            if( v1.type == VarType.REAL ){
+                LLVMGenerator.sub_double(v1.name, v2.name);
+                stack.push( new Value("%"+(LLVMGenerator.register-1), VarType.REAL) );
+            }
+        } else {
+            error(ctx.getStart().getLine(), "Sub type mismatch");
+        }
+    }
+
+    @Override
+    public void exitMult(EmojiLangParser.MultContext ctx) {
+        Value v1 = stack.pop();
+        Value v2 = stack.pop();
+        if( v1.type == v2.type ) {
+            if( v1.type == VarType.INT ){
+                LLVMGenerator.mult_i32(v1.name, v2.name);
+                stack.push( new Value("%"+(LLVMGenerator.register-1), VarType.INT) );
+            }
+            if( v1.type == VarType.REAL ){
+                LLVMGenerator.mult_double(v1.name, v2.name);
+                stack.push( new Value("%"+(LLVMGenerator.register-1), VarType.REAL) );
+            }
+        } else {
+            error(ctx.getStart().getLine(), "Mult type mismatch");
+        }
+    }
+
+    @Override
+    public void exitDiv(EmojiLangParser.DivContext ctx) {
+        Value v1 = stack.pop();
+        Value v2 = stack.pop();
+        if( v1.type == v2.type ) {
+            if( v1.type == VarType.INT ){
+                LLVMGenerator.div_i32(v1.name, v2.name);
+                stack.push( new Value("%"+(LLVMGenerator.register-1), VarType.INT) );
+            }
+            if( v1.type == VarType.REAL ){
+                LLVMGenerator.div_double(v1.name, v2.name);
+                stack.push( new Value("%"+(LLVMGenerator.register-1), VarType.REAL) );
+            }
+        } else {
+            error(ctx.getStart().getLine(), "Div type mismatch");
         }
     }
 

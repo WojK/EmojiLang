@@ -27,6 +27,7 @@ expression1:  expression2			    #single1
 
 expression2:   INT		        #int
        | REAL			        #real
+       | ID                     #var
        | '(' expression0 ')'	#par
 ;
 
@@ -72,7 +73,7 @@ SUB: '-'
 MULT: '*'
 ;
 
-DIV: '\\'
+DIV: '/'
 ;
 
 WS: (' '|'\t'|'\n'|'\r')+ { skip(); }

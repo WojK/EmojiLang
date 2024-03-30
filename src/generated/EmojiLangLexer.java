@@ -41,7 +41,7 @@ public class EmojiLangLexer extends Lexer {
 		return new String[] {
 			null, "'='", "'('", "')'", "'\\uD83D\uDCD6'", "'\\uD83D\uDDA8\\uFE0F'", 
 			"'\\uD83D\uDC49'", "'\\uD83D\uDC48'", "'\\uD83D\uDE00'", "';'", null, 
-			null, null, "'+'", "'-'", "'*'", "'\\'"
+			null, null, "'+'", "'-'", "'*'", "'/'"
 		};
 	}
 	private static final String[] _LITERAL_NAMES = makeLiteralNames();
@@ -177,7 +177,7 @@ public class EmojiLangLexer extends Lexer {
 		"\u0000HI\u0001\u0000\u0000\u0000IG\u0001\u0000\u0000\u0000IJ\u0001\u0000"+
 		"\u0000\u0000J\u0018\u0001\u0000\u0000\u0000KL\u0005+\u0000\u0000L\u001a"+
 		"\u0001\u0000\u0000\u0000MN\u0005-\u0000\u0000N\u001c\u0001\u0000\u0000"+
-		"\u0000OP\u0005*\u0000\u0000P\u001e\u0001\u0000\u0000\u0000QR\u0005\\\u0000"+
+		"\u0000OP\u0005*\u0000\u0000P\u001e\u0001\u0000\u0000\u0000QR\u0005/\u0000"+
 		"\u0000R \u0001\u0000\u0000\u0000SU\u0007\u0001\u0000\u0000TS\u0001\u0000"+
 		"\u0000\u0000UV\u0001\u0000\u0000\u0000VT\u0001\u0000\u0000\u0000VW\u0001"+
 		"\u0000\u0000\u0000WX\u0001\u0000\u0000\u0000XY\u0006\u0010\u0000\u0000"+

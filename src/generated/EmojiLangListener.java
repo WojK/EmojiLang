@@ -144,6 +144,18 @@ public interface EmojiLangListener extends ParseTreeListener {
 	 */
 	void exitReal(EmojiLangParser.RealContext ctx);
 	/**
+	 * Enter a parse tree produced by the {@code var}
+	 * labeled alternative in {@link EmojiLangParser#expression2}.
+	 * @param ctx the parse tree
+	 */
+	void enterVar(EmojiLangParser.VarContext ctx);
+	/**
+	 * Exit a parse tree produced by the {@code var}
+	 * labeled alternative in {@link EmojiLangParser#expression2}.
+	 * @param ctx the parse tree
+	 */
+	void exitVar(EmojiLangParser.VarContext ctx);
+	/**
 	 * Enter a parse tree produced by the {@code par}
 	 * labeled alternative in {@link EmojiLangParser#expression2}.
 	 * @param ctx the parse tree
