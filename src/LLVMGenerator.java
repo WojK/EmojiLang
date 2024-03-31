@@ -136,6 +136,7 @@ public class LLVMGenerator {
 
     static void ifend(){
         int b = brstack.pop();
+        main_text += "br label %false"+b+"\n";
         main_text += "false"+b+":\n";
     }
 
@@ -144,7 +145,34 @@ public class LLVMGenerator {
         register++;
     }
     static void icmp_double(String v1, String v2){
-        main_text += "%"+register+" = icmp eq double "+v1+", "+v2+"\n";
+        main_text += "%"+register+" = fcmp oeq double "+v1+", "+v2+"\n";
         register++;
+    }
+
+    static void repeatstart(String repetitions){
+        declare_i32(Integer.toString(register));
+        int counter = register;
+        register++;
+        assign_i32(Integer.toString(counter), "0");
+        br++;
+        main_text += "br label %cond"+br+"\n";
+        main_text += "cond"+br+":\n";
+
+        load_i32(Integer.toString(counter));
+        add_i32("%"+(register-1), "1");
+        assign_i32(Integer.toString(counter), "%"+(register-1));
+
+        main_text += "%"+register+" = icmp slt i32 %"+(register-2)+", "+repetitions+"\n";
+        register++;
+
+        main_text += "br i1 %"+(register-1)+", label %true"+br+", label %false"+br+"\n";
+        main_text += "true"+br+":\n";
+        brstack.push(br);
+    }
+
+    static void repeatend(){
+        int b = brstack.pop();
+        main_text += "br label %cond"+b+"\n";
+        main_text += "false"+b+":\n";
     }
 }

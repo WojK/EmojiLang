@@ -8,6 +8,7 @@ stat: ( declaration
     | read
     | print ) END_STAT
     | if
+    | loop
 ;
 
 if: IF '(' equal ')' OPEN_BRACKET blockif CLOSE_BRACKET
@@ -20,6 +21,15 @@ equal: equalFactor '==' equalFactor
 ;
 
 equalFactor: INT | REAL | ID
+;
+
+loop: FOR '(' repetitions ')' OPEN_BRACKET loopBlock CLOSE_BRACKET
+;
+
+repetitions: INT | ID
+;
+
+loopBlock: stat
 ;
 
 declaration: DEC_KW ID '=' expression0
@@ -51,6 +61,9 @@ print: PRINT '(' (ID | INT | REAL)  ')'
 ;
 
 IF: '🤔'
+;
+
+FOR: '🔁'
 ;
 
 READ: '📖'

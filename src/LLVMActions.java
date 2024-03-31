@@ -221,8 +221,7 @@ public class LLVMActions extends EmojiLangBaseListener {
     }
 
     @Override
-    public void
-    enterBlockif(EmojiLangParser.BlockifContext ctx) {
+    public void enterBlockif(EmojiLangParser.BlockifContext ctx) {
         LLVMGenerator.ifstart();
     }
 
@@ -232,7 +231,14 @@ public class LLVMActions extends EmojiLangBaseListener {
     }
     @Override
     public void exitEqualFactor(EmojiLangParser.EqualFactorContext ctx){
-        //TODO: add to stack values
+        if(ctx.INT()!= null){
+            stack.push( new Value(ctx.INT().getText(), VarType.INT) );
+        } else if(ctx.REAL()!= null)
+        {
+            stack.push( new Value(ctx.REAL().getText(), VarType.REAL) );
+        } else if (ctx.ID()!= null) {
+            stack.push( new Value(ctx.ID().getText(), VarType.VARIABLE) );
+        }
     }
 
     @Override
@@ -254,9 +260,28 @@ public class LLVMActions extends EmojiLangBaseListener {
         }
     }
 
-    void error(int line, String msg){
-        System.err.println("Error, line "+line+", "+msg);
-        System.exit(1);
+    @Override
+    public void exitRepetitions(EmojiLangParser.RepetitionsContext ctx) {
+        if (ctx.ID() != null) {
+            Value value = new Value(ctx.ID().getText(), VarType.VARIABLE);
+            if (!variables.containsKey(value.name)) {
+                error(ctx.getStart().getLine(), "Variable not declared " + value.name);
+            }
+            value.convertFromVariableType(variables);
+            LLVMGenerator.repeatstart(value.name);
+        } else if (ctx.INT() != null) {
+            Value value = new Value(ctx.INT().getText(), VarType.INT);
+            LLVMGenerator.repeatstart(value.name);
+        }
     }
 
+        @Override
+        public void exitLoopBlock (EmojiLangParser.LoopBlockContext ctx){
+            LLVMGenerator.repeatend();
+        }
+
+        void error ( int line, String msg){
+            System.err.println("Error, line " + line + ", " + msg);
+            System.exit(1);
+        }
 }

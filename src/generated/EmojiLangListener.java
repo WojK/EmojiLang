@@ -68,6 +68,36 @@ public interface EmojiLangListener extends ParseTreeListener {
 	 */
 	void exitEqualFactor(EmojiLangParser.EqualFactorContext ctx);
 	/**
+	 * Enter a parse tree produced by {@link EmojiLangParser#loop}.
+	 * @param ctx the parse tree
+	 */
+	void enterLoop(EmojiLangParser.LoopContext ctx);
+	/**
+	 * Exit a parse tree produced by {@link EmojiLangParser#loop}.
+	 * @param ctx the parse tree
+	 */
+	void exitLoop(EmojiLangParser.LoopContext ctx);
+	/**
+	 * Enter a parse tree produced by {@link EmojiLangParser#repetitions}.
+	 * @param ctx the parse tree
+	 */
+	void enterRepetitions(EmojiLangParser.RepetitionsContext ctx);
+	/**
+	 * Exit a parse tree produced by {@link EmojiLangParser#repetitions}.
+	 * @param ctx the parse tree
+	 */
+	void exitRepetitions(EmojiLangParser.RepetitionsContext ctx);
+	/**
+	 * Enter a parse tree produced by {@link EmojiLangParser#loopBlock}.
+	 * @param ctx the parse tree
+	 */
+	void enterLoopBlock(EmojiLangParser.LoopBlockContext ctx);
+	/**
+	 * Exit a parse tree produced by {@link EmojiLangParser#loopBlock}.
+	 * @param ctx the parse tree
+	 */
+	void exitLoopBlock(EmojiLangParser.LoopBlockContext ctx);
+	/**
 	 * Enter a parse tree produced by {@link EmojiLangParser#declaration}.
 	 * @param ctx the parse tree
 	 */
