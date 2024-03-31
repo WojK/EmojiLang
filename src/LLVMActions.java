@@ -1,7 +1,9 @@
 import generated.EmojiLangBaseListener;
 import generated.EmojiLangParser;
+import org.antlr.v4.runtime.tree.ParseTree;
 
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 import java.util.Stack;
 
@@ -279,6 +281,50 @@ public class LLVMActions extends EmojiLangBaseListener {
         public void exitLoopBlock (EmojiLangParser.LoopBlockContext ctx){
             LLVMGenerator.repeatend();
         }
+
+    @Override
+    public void exitFunction(EmojiLangParser.FunctionContext ctx) {
+        String returnVariable = ctx.ret().ID().getText();
+        String returnVariableType = ctx.retType().getText();
+        LLVMGenerator.exitFunction(returnVariable, returnVariableType);
+    }
+
+    @Override
+    public void enterFunction(EmojiLangParser.FunctionContext ctx) {
+        String name = ctx.fname().getText();
+        String[] argsNames = ctx.fargs().ID().stream().map(ParseTree::getText).toArray(String[]::new);
+        String[] argsTypes = ctx.fargs().fargsType().stream().map(ParseTree::getText).toArray(String[]::new);
+        for(int i = 0; i < argsNames.length; i++){
+            if(argsTypes[i].equals("real")){
+                variables.put(argsNames[i], VarType.REAL);
+            } else if (argsTypes[i].equals("int")) {
+                variables.put(argsNames[i], VarType.INT);
+            }
+        }
+        String retType = ctx.retType().getText();
+        LLVMGenerator.enterFunction(name, retType, argsNames, argsTypes);
+    }
+
+
+    @Override
+    public void exitFunBlock(EmojiLangParser.FunBlockContext ctx) {
+
+    }
+    @Override
+    public void exitFname(EmojiLangParser.FnameContext ctx) {
+
+    }
+
+    @Override
+    public void exitFargs(EmojiLangParser.FargsContext ctx) {
+
+    }
+
+    @Override
+    public void exitRet(EmojiLangParser.RetContext ctx) {
+
+    }
+
 
         void error ( int line, String msg){
             System.err.println("Error, line " + line + ", " + msg);

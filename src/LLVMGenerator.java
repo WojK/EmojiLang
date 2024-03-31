@@ -6,6 +6,8 @@ public class LLVMGenerator {
     static int register = 1;
     static int br = 0;
 
+    // TODO: add flag to change global or local code gen and then depending on the flag add LLVM to header or main
+
 
     static Stack<Integer> brstack = new Stack<Integer>();
 
@@ -174,5 +176,49 @@ public class LLVMGenerator {
         int b = brstack.pop();
         main_text += "br label %cond"+b+"\n";
         main_text += "false"+b+":\n";
+    }
+
+    static void enterFunction(String name, String retType, String[] args, String[] argsTypes ){
+        String mappedRetType = "";
+        if(retType.equals("real")){
+            mappedRetType = "double";
+        }else if(retType.equals("int")){
+            mappedRetType = "i32";
+        }
+        main_text += "define "+mappedRetType+" @"+name+"(";
+        for(int i = 0; i < args.length; i++){
+            if(argsTypes[i].equals("int")){
+                main_text += "i32 %"+args[i];
+            }else if(argsTypes[i].equals("real")){
+                main_text += "double %"+args[i];
+            }
+            if(i != args.length-1){
+                main_text += ", ";
+            }
+        }
+        main_text += ") {\n";
+        for(int i = 0; i < args.length; i++){
+            if(argsTypes[i].equals("int")){
+                main_text += "%"+register+" = alloca i32\n";
+                main_text += "store i32 %"+args[i]+", i32* %" + register+"\n";
+                register++;
+            }else if(argsTypes[i].equals("real")){
+                main_text += "%"+register+" = alloca double\n";
+                main_text += "store double %"+args[i]+", double* %" +register+"\n";
+                register++;
+            }
+        }
+    }
+
+    static void exitFunction(String returnVariable, String returnVariableType){
+        String mappedRetType = "";
+        if(returnVariableType.equals("real")){
+            mappedRetType = "double";
+        }else if(returnVariableType.equals("int")){
+            mappedRetType = "i32";
+        }
+        main_text += "%"+register + " = load " + mappedRetType + ", "+mappedRetType+"* %"+returnVariable+"\n";
+        main_text += "ret " + mappedRetType + " %" +register+"\n}\n";
+        register++;
     }
 }

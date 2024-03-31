@@ -28,6 +28,86 @@ public interface EmojiLangListener extends ParseTreeListener {
 	 */
 	void exitStat(EmojiLangParser.StatContext ctx);
 	/**
+	 * Enter a parse tree produced by {@link EmojiLangParser#function}.
+	 * @param ctx the parse tree
+	 */
+	void enterFunction(EmojiLangParser.FunctionContext ctx);
+	/**
+	 * Exit a parse tree produced by {@link EmojiLangParser#function}.
+	 * @param ctx the parse tree
+	 */
+	void exitFunction(EmojiLangParser.FunctionContext ctx);
+	/**
+	 * Enter a parse tree produced by {@link EmojiLangParser#retType}.
+	 * @param ctx the parse tree
+	 */
+	void enterRetType(EmojiLangParser.RetTypeContext ctx);
+	/**
+	 * Exit a parse tree produced by {@link EmojiLangParser#retType}.
+	 * @param ctx the parse tree
+	 */
+	void exitRetType(EmojiLangParser.RetTypeContext ctx);
+	/**
+	 * Enter a parse tree produced by {@link EmojiLangParser#functionExec}.
+	 * @param ctx the parse tree
+	 */
+	void enterFunctionExec(EmojiLangParser.FunctionExecContext ctx);
+	/**
+	 * Exit a parse tree produced by {@link EmojiLangParser#functionExec}.
+	 * @param ctx the parse tree
+	 */
+	void exitFunctionExec(EmojiLangParser.FunctionExecContext ctx);
+	/**
+	 * Enter a parse tree produced by {@link EmojiLangParser#funBlock}.
+	 * @param ctx the parse tree
+	 */
+	void enterFunBlock(EmojiLangParser.FunBlockContext ctx);
+	/**
+	 * Exit a parse tree produced by {@link EmojiLangParser#funBlock}.
+	 * @param ctx the parse tree
+	 */
+	void exitFunBlock(EmojiLangParser.FunBlockContext ctx);
+	/**
+	 * Enter a parse tree produced by {@link EmojiLangParser#fname}.
+	 * @param ctx the parse tree
+	 */
+	void enterFname(EmojiLangParser.FnameContext ctx);
+	/**
+	 * Exit a parse tree produced by {@link EmojiLangParser#fname}.
+	 * @param ctx the parse tree
+	 */
+	void exitFname(EmojiLangParser.FnameContext ctx);
+	/**
+	 * Enter a parse tree produced by {@link EmojiLangParser#fargs}.
+	 * @param ctx the parse tree
+	 */
+	void enterFargs(EmojiLangParser.FargsContext ctx);
+	/**
+	 * Exit a parse tree produced by {@link EmojiLangParser#fargs}.
+	 * @param ctx the parse tree
+	 */
+	void exitFargs(EmojiLangParser.FargsContext ctx);
+	/**
+	 * Enter a parse tree produced by {@link EmojiLangParser#fargsType}.
+	 * @param ctx the parse tree
+	 */
+	void enterFargsType(EmojiLangParser.FargsTypeContext ctx);
+	/**
+	 * Exit a parse tree produced by {@link EmojiLangParser#fargsType}.
+	 * @param ctx the parse tree
+	 */
+	void exitFargsType(EmojiLangParser.FargsTypeContext ctx);
+	/**
+	 * Enter a parse tree produced by {@link EmojiLangParser#ret}.
+	 * @param ctx the parse tree
+	 */
+	void enterRet(EmojiLangParser.RetContext ctx);
+	/**
+	 * Exit a parse tree produced by {@link EmojiLangParser#ret}.
+	 * @param ctx the parse tree
+	 */
+	void exitRet(EmojiLangParser.RetContext ctx);
+	/**
 	 * Enter a parse tree produced by {@link EmojiLangParser#if}.
 	 * @param ctx the parse tree
 	 */

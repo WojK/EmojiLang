@@ -1,14 +1,39 @@
 grammar EmojiLang;
 
-prog: stat*
+prog: (stat|function)*
 ;
 
 stat: ( declaration
     | assignment
     | read
-    | print ) END_STAT
+    | print
+    | functionExec ) END_STAT
     | if
     | loop
+;
+
+function: '🤙' retType fname '(' fargs ')' OPEN_BRACKET funBlock ret CLOSE_BRACKET
+;
+
+retType: 'int' | 'real'
+;
+
+functionExec: '🧨' fname '(' fargs ')'
+;
+
+funBlock: stat*
+;
+
+fname: ID
+;
+
+fargs: (fargsType ID ',')* (fargsType ID)?
+;
+
+fargsType: 'int' | 'real'
+;
+
+ret: 'ret:' ID END_STAT
 ;
 
 if: IF '(' equal ')' OPEN_BRACKET blockif CLOSE_BRACKET
