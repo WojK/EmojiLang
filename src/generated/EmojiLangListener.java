@@ -58,6 +58,16 @@ public interface EmojiLangListener extends ParseTreeListener {
 	 */
 	void exitFunctionExec(EmojiLangParser.FunctionExecContext ctx);
 	/**
+	 * Enter a parse tree produced by {@link EmojiLangParser#fargsExec}.
+	 * @param ctx the parse tree
+	 */
+	void enterFargsExec(EmojiLangParser.FargsExecContext ctx);
+	/**
+	 * Exit a parse tree produced by {@link EmojiLangParser#fargsExec}.
+	 * @param ctx the parse tree
+	 */
+	void exitFargsExec(EmojiLangParser.FargsExecContext ctx);
+	/**
 	 * Enter a parse tree produced by {@link EmojiLangParser#funBlock}.
 	 * @param ctx the parse tree
 	 */

@@ -77,6 +77,18 @@ public class EmojiLangBaseListener implements EmojiLangListener {
 	 *
 	 * <p>The default implementation does nothing.</p>
 	 */
+	@Override public void enterFargsExec(EmojiLangParser.FargsExecContext ctx) { }
+	/**
+	 * {@inheritDoc}
+	 *
+	 * <p>The default implementation does nothing.</p>
+	 */
+	@Override public void exitFargsExec(EmojiLangParser.FargsExecContext ctx) { }
+	/**
+	 * {@inheritDoc}
+	 *
+	 * <p>The default implementation does nothing.</p>
+	 */
 	@Override public void enterFunBlock(EmojiLangParser.FunBlockContext ctx) { }
 	/**
 	 * {@inheritDoc}

@@ -18,7 +18,10 @@ function: '🤙' retType fname '(' fargs ')' OPEN_BRACKET funBlock ret CLOSE_BRA
 retType: 'int' | 'real'
 ;
 
-functionExec: '🧨' fname '(' fargs ')'
+functionExec: '🧨'fname'('fargsExec')'
+;
+
+fargsExec: (ID',')* (ID)?
 ;
 
 funBlock: stat*
