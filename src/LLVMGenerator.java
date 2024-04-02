@@ -1,3 +1,4 @@
+import java.util.Arrays;
 import java.util.Stack;
 
 public class LLVMGenerator {
@@ -92,6 +93,16 @@ public class LLVMGenerator {
 
     static void declare_double(String id){
         buffer += "%"+id+" = alloca double\n";
+        addTextDependOnScope();
+    }
+
+    static void declare_global_i32(String id, String value){
+        buffer += "@"+id+" = global i32 "+value+"\n";
+        addTextDependOnScope();
+    }
+
+    static void declare_global_double(String id, String value){
+        buffer += "@"+id+" = global double "+value+"\n";
         addTextDependOnScope();
     }
 
@@ -232,6 +243,17 @@ public class LLVMGenerator {
             }
         }
         buffer += ") {\n";
+        for(int i = 0; i < args.length; i++){
+            if(argsTypes[i].equals("int")){
+                buffer += "%"+register+" = alloca i32\n";
+                buffer += "store i32 %"+args[i]+", i32* %" + register+"\n";
+                register++;
+            }else if(argsTypes[i].equals("real")){
+                buffer += "%"+register+" = alloca double\n";
+                buffer += "store double %"+args[i]+", double* %" +register+"\n";
+                register++;
+            }
+        }
         addTextDependOnScope();
     }
 
@@ -242,14 +264,33 @@ public class LLVMGenerator {
         }else if(returnVariableType.equals("int")){
             mappedRetType = "i32";
         }
-        buffer += "%"+register + " = load " + mappedRetType + ", "+mappedRetType+"* %"+returnVariable+"\n";
+        buffer += "%"+register + " = load " + mappedRetType + ", "+mappedRetType+"* "+returnVariable+"\n";
         buffer += "ret " + mappedRetType + " %" +register+"\n}\n";
         register++;
         addTextDependOnScope();
     }
 
     static void execFunc(String id, String returnType ,String[] argsTypes, String[] argsNames){
-        buffer += "%"+register+" = call "+returnType+ " @"+id+"("+")\n";
+        String[] argsTypesMapped = Arrays.stream(argsTypes).map(x -> {
+            if(x.equals("REAL")){
+                return "double";
+            }else{
+                return "i32";
+            }
+        }).toArray(String[]::new);
+
+        String argsMapped = "";
+        for(int i = 0; i < argsNames.length; i++){
+            argsMapped += argsTypesMapped[i] +" %"+register;
+            if(i != argsNames.length - 1){
+                argsMapped += ", ";
+            }
+            buffer += "%"+register+" = load "+argsTypesMapped[i]+", "+argsTypesMapped[i]+"* %"+argsNames[i]+"\n";
+            register++;
+        }
+
+        buffer += "%"+register+" = call "+returnType+ " @"+id+"("+argsMapped+")\n";
         register++;
+        addTextDependOnScope();
     }
 }

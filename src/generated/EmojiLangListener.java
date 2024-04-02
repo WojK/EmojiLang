@@ -18,15 +18,15 @@ public interface EmojiLangListener extends ParseTreeListener {
 	 */
 	void exitProg(EmojiLangParser.ProgContext ctx);
 	/**
-	 * Enter a parse tree produced by {@link EmojiLangParser#stat}.
+	 * Enter a parse tree produced by {@link EmojiLangParser#globalStat}.
 	 * @param ctx the parse tree
 	 */
-	void enterStat(EmojiLangParser.StatContext ctx);
+	void enterGlobalStat(EmojiLangParser.GlobalStatContext ctx);
 	/**
-	 * Exit a parse tree produced by {@link EmojiLangParser#stat}.
+	 * Exit a parse tree produced by {@link EmojiLangParser#globalStat}.
 	 * @param ctx the parse tree
 	 */
-	void exitStat(EmojiLangParser.StatContext ctx);
+	void exitGlobalStat(EmojiLangParser.GlobalStatContext ctx);
 	/**
 	 * Enter a parse tree produced by {@link EmojiLangParser#function}.
 	 * @param ctx the parse tree
@@ -77,6 +77,16 @@ public interface EmojiLangListener extends ParseTreeListener {
 	 * @param ctx the parse tree
 	 */
 	void exitFunBlock(EmojiLangParser.FunBlockContext ctx);
+	/**
+	 * Enter a parse tree produced by {@link EmojiLangParser#stat}.
+	 * @param ctx the parse tree
+	 */
+	void enterStat(EmojiLangParser.StatContext ctx);
+	/**
+	 * Exit a parse tree produced by {@link EmojiLangParser#stat}.
+	 * @param ctx the parse tree
+	 */
+	void exitStat(EmojiLangParser.StatContext ctx);
 	/**
 	 * Enter a parse tree produced by {@link EmojiLangParser#fname}.
 	 * @param ctx the parse tree
@@ -187,6 +197,26 @@ public interface EmojiLangListener extends ParseTreeListener {
 	 * @param ctx the parse tree
 	 */
 	void exitLoopBlock(EmojiLangParser.LoopBlockContext ctx);
+	/**
+	 * Enter a parse tree produced by {@link EmojiLangParser#globalDeclatarion}.
+	 * @param ctx the parse tree
+	 */
+	void enterGlobalDeclatarion(EmojiLangParser.GlobalDeclatarionContext ctx);
+	/**
+	 * Exit a parse tree produced by {@link EmojiLangParser#globalDeclatarion}.
+	 * @param ctx the parse tree
+	 */
+	void exitGlobalDeclatarion(EmojiLangParser.GlobalDeclatarionContext ctx);
+	/**
+	 * Enter a parse tree produced by {@link EmojiLangParser#globalValue}.
+	 * @param ctx the parse tree
+	 */
+	void enterGlobalValue(EmojiLangParser.GlobalValueContext ctx);
+	/**
+	 * Exit a parse tree produced by {@link EmojiLangParser#globalValue}.
+	 * @param ctx the parse tree
+	 */
+	void exitGlobalValue(EmojiLangParser.GlobalValueContext ctx);
 	/**
 	 * Enter a parse tree produced by {@link EmojiLangParser#declaration}.
 	 * @param ctx the parse tree

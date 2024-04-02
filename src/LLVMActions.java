@@ -3,11 +3,10 @@ import generated.EmojiLangParser;
 import org.antlr.v4.runtime.tree.ParseTree;
 
 import java.util.HashMap;
-import java.util.List;
 import java.util.Map;
 import java.util.Stack;
 
-enum VarType{ INT, REAL, VARIABLE, LOCAL_VARIABLE_REAL, LOCAL_VARIABLE_INT }
+enum VarType{ INT, REAL, VARIABLE }
 
 class Value{
     public String name;
@@ -17,7 +16,8 @@ class Value{
         this.type = type;
     }
 
-    public void convertFromVariableType(Map<String, VarType> variables, Map<String, VarType> localVariables){
+    public void convertFromVariableType(Map<String, VarType> variables, Map<String, VarType> localVariables,
+                                        Map<String, String> mappedLocalNames){
         if(variables.get(this.name) == VarType.INT){
             LLVMGenerator.load_i32(this.name);
             this.type = VarType.INT;
@@ -26,12 +26,14 @@ class Value{
             LLVMGenerator.load_double(this.name);
             this.type = VarType.REAL;
             this.name = "%"+(LLVMGenerator.register-1);
-        } else if (localVariables.get(this.name) == VarType.LOCAL_VARIABLE_REAL) {
+        } else if (localVariables.get(this.name) == VarType.REAL) {
+            String mappedName = mappedLocalNames.get(this.name);
             this.type = VarType.REAL;
-            this.name = "%"+this.name;
-        } else if (localVariables.get(this.name) == VarType.LOCAL_VARIABLE_INT) {
+            this.name = mappedName;
+        } else if (localVariables.get(this.name) == VarType.INT) {
+            String mappedName = mappedLocalNames.get(this.name);
             this.type = VarType.INT;
-            this.name = "%"+this.name;
+            this.name = mappedName;
         }
     }
 }
@@ -40,6 +42,7 @@ public class LLVMActions extends EmojiLangBaseListener {
 
     Map<String, VarType> variables = new HashMap<String, VarType>();
     Map<String, VarType> localVariables = new HashMap<String, VarType>();
+    Map<String, String> localVariablesMapped = new HashMap<String, String>();
 
     Map<String, String> functionsWithRetType = new HashMap<>();
 
@@ -78,11 +81,7 @@ public class LLVMActions extends EmojiLangBaseListener {
     public void exitDeclaration(EmojiLangParser.DeclarationContext ctx) {
         String ID = ctx.ID().getText();
         Value v = stack.pop();
-        if(LLVMGenerator.global) {
-            variables.put(ID, v.type);
-        }else{
-            localVariables.put(ID, v.type);
-        }
+        localVariables.put(ID, v.type);
 
         if( v.type == VarType.INT ){
             LLVMGenerator.declare_i32(ID);
@@ -92,6 +91,33 @@ public class LLVMActions extends EmojiLangBaseListener {
             LLVMGenerator.declare_double(ID);
             LLVMGenerator.assign_double(ID, v.name);
         }
+    }
+
+    @Override
+    public void enterGlobalDeclatarion(EmojiLangParser.GlobalDeclatarionContext ctx) {
+        LLVMGenerator.global = true;
+    }
+
+
+    @Override
+    public void exitGlobalDeclatarion(EmojiLangParser.GlobalDeclatarionContext ctx) {
+        String ID = ctx.ID().getText();
+        String value = ctx.globalValue().getText();
+        VarType type;
+        if(ctx.globalValue().INT() != null) {
+            type = VarType.INT;
+        } else{
+            type = VarType.REAL;
+        }
+        variables.put(ID, type);
+
+        if( type == VarType.INT ){
+            LLVMGenerator.declare_global_i32(ID, value);
+        }
+        if(type == VarType.REAL ){
+            LLVMGenerator.declare_global_double(ID, value);
+        }
+        LLVMGenerator.global = false;
     }
     @Override
     public void exitInt(EmojiLangParser.IntContext ctx) {
@@ -115,13 +141,17 @@ public class LLVMActions extends EmojiLangBaseListener {
 
         if(ctx.ID() != null ){
             String ID = ctx.ID().getText();
-            VarType type = variables.get(ID);
+            String mappedId = localVariablesMapped.get(ID);
+            VarType type = null;
+            if(variables.containsKey(ID)) type = variables.get(ID);
+            if(localVariables.containsKey(ID)) type = localVariables.get(ID);
+
             if( type != null ) {
                 if( type == VarType.INT ){
-                    LLVMGenerator.printf_i32( ID );
+                    LLVMGenerator.printf_i32( mappedId );
                 }
                 if( type == VarType.REAL ){
-                    LLVMGenerator.printf_double( ID );
+                    LLVMGenerator.printf_double( mappedId );
                 }
             } else {
                 error(ctx.getStart().getLine(), "Unknown variable "+ID);
@@ -156,10 +186,10 @@ public class LLVMActions extends EmojiLangBaseListener {
     private void convertIfTypeIsVariable(Value v1, Value v2){
 
         if(v1.type == VarType.VARIABLE){
-            v1.convertFromVariableType(variables, localVariables);
+            v1.convertFromVariableType(variables, localVariables, localVariablesMapped);
         }
         if(v2.type == VarType.VARIABLE ){
-            v2.convertFromVariableType(variables, localVariables);
+            v2.convertFromVariableType(variables, localVariables, localVariablesMapped);
         }
     }
     @Override
@@ -292,7 +322,7 @@ public class LLVMActions extends EmojiLangBaseListener {
             if (!variables.containsKey(value.name) && !localVariables.containsKey(value.name)) {
                 error(ctx.getStart().getLine(), "Variable not declared " + value.name);
             }
-            value.convertFromVariableType(variables, localVariables);
+            value.convertFromVariableType(variables, localVariables, localVariablesMapped);
             LLVMGenerator.repeatstart(value.name);
         } else if (ctx.INT() != null) {
             Value value = new Value(ctx.INT().getText(), VarType.INT);
@@ -308,8 +338,10 @@ public class LLVMActions extends EmojiLangBaseListener {
     @Override
     public void exitFunction(EmojiLangParser.FunctionContext ctx) {
         String returnVariable = ctx.ret().ID().getText();
+        String mappedReturnVariable = localVariablesMapped.containsKey(returnVariable) ?
+               "%"+localVariablesMapped.get(returnVariable) : "%"+returnVariable;
         String returnVariableType = ctx.retType().getText();
-        LLVMGenerator.exitFunction(returnVariable, returnVariableType);
+        LLVMGenerator.exitFunction(mappedReturnVariable, returnVariableType);
         LLVMGenerator.global = false;
     }
 
@@ -320,13 +352,7 @@ public class LLVMActions extends EmojiLangBaseListener {
         String name = ctx.fname().getText();
         String[] argsNames = ctx.fargs().ID().stream().map(ParseTree::getText).toArray(String[]::new);
         String[] argsTypes = ctx.fargs().fargsType().stream().map(ParseTree::getText).toArray(String[]::new);
-        for(int i = 0; i < argsNames.length; i++){
-            if(argsTypes[i].equals("real")){
-                localVariables.put(argsNames[i], VarType.LOCAL_VARIABLE_REAL);
-            } else if (argsTypes[i].equals("int")) {
-                localVariables.put(argsNames[i], VarType.LOCAL_VARIABLE_INT);
-            }
-        }
+
         String retType = ctx.retType().getText();
         String mappedRetType = "";
         if(retType.equals("real")){
@@ -335,8 +361,18 @@ public class LLVMActions extends EmojiLangBaseListener {
             mappedRetType = "i32";
         }
         functionsWithRetType.put(name, mappedRetType);
+        for(int i = 0; i < argsNames.length; i++){
+            if(argsTypes[i].equals("real")){
+                localVariables.put(argsNames[i], VarType.REAL);
+                localVariablesMapped.put(argsNames[i],String.valueOf(LLVMGenerator.register+i));
+            } else if (argsTypes[i].equals("int")) {
+                localVariables.put(argsNames[i], VarType.INT);
+                localVariablesMapped.put(argsNames[i],String.valueOf(LLVMGenerator.register+i));
+            }
+        }
         LLVMGenerator.enterFunction(name, mappedRetType, argsNames, argsTypes);
     }
+
 
 
     @Override
@@ -365,4 +401,7 @@ public class LLVMActions extends EmojiLangBaseListener {
     }
 }
 
-// TODO: global variables : add new declaration and grammar 
+/*
+TODO:
+Change numeration inside functions
+ */

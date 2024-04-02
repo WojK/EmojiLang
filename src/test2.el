@@ -1,11 +1,17 @@
-🤙 real func(real x, real y)
+🌍 globalTwo = 2;
+🌍 globalOne = 1.1;
+
+🤙 real funcOne( real x )
 👉
-    😀 z = x + 1.1;
-    🖨️(z);
-    ret: z;
+    🖨️(x);
+    ret: x;
 👈
 
-😀 argone = 1.1;
-😀 argtwo = 2.2;
+🤙 real funcTwo()
+👉
+    😀 arg = 1.1;
+    🧨funcOne(arg);
+    ret: arg;
+👈
 
-🧨func(argone, argtwo);
+🧨funcTwo();

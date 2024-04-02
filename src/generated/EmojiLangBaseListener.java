@@ -29,13 +29,13 @@ public class EmojiLangBaseListener implements EmojiLangListener {
 	 *
 	 * <p>The default implementation does nothing.</p>
 	 */
-	@Override public void enterStat(EmojiLangParser.StatContext ctx) { }
+	@Override public void enterGlobalStat(EmojiLangParser.GlobalStatContext ctx) { }
 	/**
 	 * {@inheritDoc}
 	 *
 	 * <p>The default implementation does nothing.</p>
 	 */
-	@Override public void exitStat(EmojiLangParser.StatContext ctx) { }
+	@Override public void exitGlobalStat(EmojiLangParser.GlobalStatContext ctx) { }
 	/**
 	 * {@inheritDoc}
 	 *
@@ -96,6 +96,18 @@ public class EmojiLangBaseListener implements EmojiLangListener {
 	 * <p>The default implementation does nothing.</p>
 	 */
 	@Override public void exitFunBlock(EmojiLangParser.FunBlockContext ctx) { }
+	/**
+	 * {@inheritDoc}
+	 *
+	 * <p>The default implementation does nothing.</p>
+	 */
+	@Override public void enterStat(EmojiLangParser.StatContext ctx) { }
+	/**
+	 * {@inheritDoc}
+	 *
+	 * <p>The default implementation does nothing.</p>
+	 */
+	@Override public void exitStat(EmojiLangParser.StatContext ctx) { }
 	/**
 	 * {@inheritDoc}
 	 *
@@ -228,6 +240,30 @@ public class EmojiLangBaseListener implements EmojiLangListener {
 	 * <p>The default implementation does nothing.</p>
 	 */
 	@Override public void exitLoopBlock(EmojiLangParser.LoopBlockContext ctx) { }
+	/**
+	 * {@inheritDoc}
+	 *
+	 * <p>The default implementation does nothing.</p>
+	 */
+	@Override public void enterGlobalDeclatarion(EmojiLangParser.GlobalDeclatarionContext ctx) { }
+	/**
+	 * {@inheritDoc}
+	 *
+	 * <p>The default implementation does nothing.</p>
+	 */
+	@Override public void exitGlobalDeclatarion(EmojiLangParser.GlobalDeclatarionContext ctx) { }
+	/**
+	 * {@inheritDoc}
+	 *
+	 * <p>The default implementation does nothing.</p>
+	 */
+	@Override public void enterGlobalValue(EmojiLangParser.GlobalValueContext ctx) { }
+	/**
+	 * {@inheritDoc}
+	 *
+	 * <p>The default implementation does nothing.</p>
+	 */
+	@Override public void exitGlobalValue(EmojiLangParser.GlobalValueContext ctx) { }
 	/**
 	 * {@inheritDoc}
 	 *

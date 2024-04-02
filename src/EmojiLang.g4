@@ -1,15 +1,12 @@
 grammar EmojiLang;
 
-prog: (stat|function)*
+prog: globalStat*
 ;
 
-stat: ( declaration
-    | assignment
-    | read
-    | print
+globalStat: ( globalDeclatarion
     | functionExec ) END_STAT
-    | if
-    | loop
+    | function
+
 ;
 
 function: '🤙' retType fname '(' fargs ')' OPEN_BRACKET funBlock ret CLOSE_BRACKET
@@ -25,6 +22,15 @@ fargsExec: (ID',')* (ID)?
 ;
 
 funBlock: stat*
+;
+
+stat: ( declaration
+    | assignment
+    | read
+    | print
+    | functionExec ) END_STAT
+    | if
+    | loop
 ;
 
 fname: ID
@@ -58,6 +64,12 @@ repetitions: INT | ID
 ;
 
 loopBlock: stat
+;
+
+globalDeclatarion: '🌍' ID '=' globalValue
+;
+
+globalValue: INT | REAL
 ;
 
 declaration: DEC_KW ID '=' expression0
