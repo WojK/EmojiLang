@@ -18,35 +18,53 @@ class Value{
 
     public void convertFromVariableType(Map<String, VarType> variables, Map<String, VarType> localVariables,
                                         Map<String, String> mappedLocalNames){
-        if(variables.get(this.name) == VarType.INT){
-            LLVMGenerator.load_i32(this.name);
-            this.type = VarType.INT;
-            this.name = "%"+(LLVMGenerator.register-1);
-        } else if (variables.get(this.name) == VarType.REAL) {
-            LLVMGenerator.load_double(this.name);
-            this.type = VarType.REAL;
-            this.name = "%"+(LLVMGenerator.register-1);
-        } else if (localVariables.get(this.name) == VarType.REAL) {
-            String mappedName = mappedLocalNames.get(this.name);
-            this.type = VarType.REAL;
-            this.name = mappedName;
-        } else if (localVariables.get(this.name) == VarType.INT) {
-            String mappedName = mappedLocalNames.get(this.name);
-            this.type = VarType.INT;
-            this.name = mappedName;
+
+        if(variables.containsKey(this.name)){
+            this.type = variables.get(this.name);
+            if(this.type == VarType.INT){
+                LLVMGenerator.load_i32_global(this.name);
+                this.name = "%"+(LLVMGenerator.register-1);
+            }else if(this.type == VarType.REAL){
+                LLVMGenerator.load_double_global(this.name);
+                this.name = "%"+(LLVMGenerator.register-1);
+            }
+        }
+
+        if(localVariables.containsKey(this.name)){
+            this.type = localVariables.get(this.name);
+            if(mappedLocalNames.containsKey(this.name)){
+                this.name = mappedLocalNames.get(this.name);
+            }
+            if(this.type == VarType.INT){
+                LLVMGenerator.load_i32(this.name);
+                this.name = "%"+(LLVMGenerator.register-1);
+            }else if(this.type == VarType.REAL){
+                LLVMGenerator.load_double(this.name);
+                this.name = "%"+(LLVMGenerator.register-1);
+            }
         }
     }
 }
 
 public class LLVMActions extends EmojiLangBaseListener {
 
-    Map<String, VarType> variables = new HashMap<String, VarType>();
+    Map<String, VarType> globalVariables = new HashMap<String, VarType>();
     Map<String, VarType> localVariables = new HashMap<String, VarType>();
     Map<String, String> localVariablesMapped = new HashMap<String, String>();
 
     Map<String, String> functionsWithRetType = new HashMap<>();
 
     Stack<Value> stack = new Stack<Value>();
+
+    private void convertIfTypeIsVariable(Value v1, Value v2){
+
+        if(v1.type == VarType.VARIABLE){
+            v1.convertFromVariableType(globalVariables, localVariables, localVariablesMapped);
+        }
+        if(v2.type == VarType.VARIABLE ){
+            v2.convertFromVariableType(globalVariables, localVariables, localVariablesMapped);
+        }
+    }
 
     @Override
     public void enterProg(EmojiLangParser.ProgContext ctx) {
@@ -62,10 +80,10 @@ public class LLVMActions extends EmojiLangBaseListener {
     public void exitAssignment(EmojiLangParser.AssignmentContext ctx){
         String ID = ctx.ID().getText();
         Value v = stack.pop();
-        if(!variables.containsKey(ID)){
+        if(!localVariables.containsKey(ID)){
             error(ctx.getStart().getLine(), "Trying to assign value to variable which is not declared: " + ID);
         }
-        VarType varType = variables.get(ID);
+        VarType varType = localVariables.get(ID);
         if(varType != v.type){
             error(ctx.getStart().getLine(), "Trying to assign inappropriate value to variable (inappropriate types): " + ID);
         }
@@ -98,7 +116,6 @@ public class LLVMActions extends EmojiLangBaseListener {
         LLVMGenerator.global = true;
     }
 
-
     @Override
     public void exitGlobalDeclatarion(EmojiLangParser.GlobalDeclatarionContext ctx) {
         String ID = ctx.ID().getText();
@@ -109,7 +126,7 @@ public class LLVMActions extends EmojiLangBaseListener {
         } else{
             type = VarType.REAL;
         }
-        variables.put(ID, type);
+        globalVariables.put(ID, type);
 
         if( type == VarType.INT ){
             LLVMGenerator.declare_global_i32(ID, value);
@@ -121,6 +138,7 @@ public class LLVMActions extends EmojiLangBaseListener {
     }
     @Override
     public void exitInt(EmojiLangParser.IntContext ctx) {
+
         stack.push( new Value(ctx.INT().getText(), VarType.INT) );
     }
     @Override
@@ -130,32 +148,41 @@ public class LLVMActions extends EmojiLangBaseListener {
     @Override
     public void exitVar(EmojiLangParser.VarContext ctx) {
         String ID = ctx.ID().getText();
-        if(!variables.containsKey(ID) && !localVariables.containsKey(ID)) error(ctx.getStart().getLine(), "Unknown variable "+ID);
+        if(!globalVariables.containsKey(ID) && !localVariables.containsKey(ID)) error(ctx.getStart().getLine(), "Unknown variable "+ID);
 
         stack.push( new Value(ID, VarType.VARIABLE) );
     }
-
 
     @Override
     public void exitPrint(EmojiLangParser.PrintContext ctx) {
 
         if(ctx.ID() != null ){
             String ID = ctx.ID().getText();
-            String mappedId = localVariablesMapped.get(ID);
-            VarType type = null;
-            if(variables.containsKey(ID)) type = variables.get(ID);
-            if(localVariables.containsKey(ID)) type = localVariables.get(ID);
 
-            if( type != null ) {
-                if( type == VarType.INT ){
-                    LLVMGenerator.printf_i32( mappedId );
+            if(globalVariables.containsKey(ID)){
+                VarType type = globalVariables.get(ID);
+                if(type == VarType.INT){
+                    LLVMGenerator.load_i32_global(ID);
+                    LLVMGenerator.printf_i32(String.valueOf(LLVMGenerator.register - 1));
+                } else if (type == VarType.REAL) {
+                    LLVMGenerator.load_double_global(ID);
+                    LLVMGenerator.printf_double(String.valueOf(LLVMGenerator.register - 1));
                 }
-                if( type == VarType.REAL ){
-                    LLVMGenerator.printf_double( mappedId );
-                }
-            } else {
-                error(ctx.getStart().getLine(), "Unknown variable "+ID);
+                return;
             }
+            if(localVariables.containsKey(ID)){
+                VarType type = localVariables.get(ID);
+                if(localVariablesMapped.containsValue(ID)) ID = localVariablesMapped.get(ID);
+                if(type == VarType.INT){
+                    LLVMGenerator.load_i32(ID);
+                    LLVMGenerator.printf_i32(String.valueOf(LLVMGenerator.register - 1));
+                } else if (type == VarType.REAL) {
+                    LLVMGenerator.load_double(ID);
+                    LLVMGenerator.printf_double(String.valueOf(LLVMGenerator.register - 1));
+                }
+                return;
+            }
+            error(ctx.getStart().getLine(), "Unknown variable "+ID);
         }else if(ctx.INT() != null){
             String intValue = ctx.INT().getText();
             LLVMGenerator.printf_value_i32(intValue);
@@ -170,11 +197,11 @@ public class LLVMActions extends EmojiLangBaseListener {
     @Override
     public void exitRead(EmojiLangParser.ReadContext ctx) {
         String ID = ctx.ID().getText();
-        if( ! variables.containsKey(ID) ) {
+        if( !localVariables.containsKey(ID) ) {
             error(ctx.getStart().getLine(), "Undeclared variable");
         }
-        VarType type = variables.get(ID);
-        if( type== VarType.INT){
+        VarType type = localVariables.get(ID);
+        if( type == VarType.INT){
             LLVMGenerator.scanf(ID);
         }else if (type == VarType.REAL){
             LLVMGenerator.scanf_double(ID);
@@ -183,15 +210,6 @@ public class LLVMActions extends EmojiLangBaseListener {
         }
     }
 
-    private void convertIfTypeIsVariable(Value v1, Value v2){
-
-        if(v1.type == VarType.VARIABLE){
-            v1.convertFromVariableType(variables, localVariables, localVariablesMapped);
-        }
-        if(v2.type == VarType.VARIABLE ){
-            v2.convertFromVariableType(variables, localVariables, localVariablesMapped);
-        }
-    }
     @Override
     public void exitAdd(EmojiLangParser.AddContext ctx) {
         Value v1 = stack.pop();
@@ -319,10 +337,10 @@ public class LLVMActions extends EmojiLangBaseListener {
     public void exitRepetitions(EmojiLangParser.RepetitionsContext ctx) {
         if (ctx.ID() != null) {
             Value value = new Value(ctx.ID().getText(), VarType.VARIABLE);
-            if (!variables.containsKey(value.name) && !localVariables.containsKey(value.name)) {
+            if (!globalVariables.containsKey(value.name) && !localVariables.containsKey(value.name)) {
                 error(ctx.getStart().getLine(), "Variable not declared " + value.name);
             }
-            value.convertFromVariableType(variables, localVariables, localVariablesMapped);
+            value.convertFromVariableType(globalVariables, localVariables, localVariablesMapped);
             LLVMGenerator.repeatstart(value.name);
         } else if (ctx.INT() != null) {
             Value value = new Value(ctx.INT().getText(), VarType.INT);
@@ -347,8 +365,12 @@ public class LLVMActions extends EmojiLangBaseListener {
 
     @Override
     public void enterFunction(EmojiLangParser.FunctionContext ctx) {
+        if(functionsWithRetType.containsValue(ctx.fname().getText())){
+            error(ctx.getStart().getLine(), "Function with given name already exists");
+        }
         LLVMGenerator.global = true;
         localVariables.clear();
+        localVariablesMapped.clear();
         String name = ctx.fname().getText();
         String[] argsNames = ctx.fargs().ID().stream().map(ParseTree::getText).toArray(String[]::new);
         String[] argsTypes = ctx.fargs().fargsType().stream().map(ParseTree::getText).toArray(String[]::new);
@@ -361,19 +383,19 @@ public class LLVMActions extends EmojiLangBaseListener {
             mappedRetType = "i32";
         }
         functionsWithRetType.put(name, mappedRetType);
-        for(int i = 0; i < argsNames.length; i++){
+
+        int[] mappedArgsNames = LLVMGenerator.enterFunction(name, mappedRetType, argsNames, argsTypes);
+
+        for(int i = 0; i < mappedArgsNames.length; i++){
             if(argsTypes[i].equals("real")){
                 localVariables.put(argsNames[i], VarType.REAL);
-                localVariablesMapped.put(argsNames[i],String.valueOf(LLVMGenerator.register+i));
+                localVariablesMapped.put(argsNames[i],String.valueOf(mappedArgsNames[i]));
             } else if (argsTypes[i].equals("int")) {
                 localVariables.put(argsNames[i], VarType.INT);
-                localVariablesMapped.put(argsNames[i],String.valueOf(LLVMGenerator.register+i));
+                localVariablesMapped.put(argsNames[i],String.valueOf(mappedArgsNames[i]));
             }
         }
-        LLVMGenerator.enterFunction(name, mappedRetType, argsNames, argsTypes);
     }
-
-
 
     @Override
     public void exitFunctionExec(EmojiLangParser.FunctionExecContext ctx) {
@@ -382,8 +404,8 @@ public class LLVMActions extends EmojiLangBaseListener {
         String[] argsTypes = new String[argsNames.length];
         for(int i = 0; i < argsNames.length; i++){
             String type;
-            if(variables.containsKey(argsNames[i])) {
-                type = variables.get(argsNames[i]).name();
+            if(globalVariables.containsKey(argsNames[i])) {
+                type = globalVariables.get(argsNames[i]).name();
                 argsTypes[i] = type;
             } else if (localVariables.containsKey(argsNames[i])) {
                 type = localVariables.get(argsNames[i]).name();
@@ -402,6 +424,5 @@ public class LLVMActions extends EmojiLangBaseListener {
 }
 
 /*
-TODO:
-Change numeration inside functions
+TODO: Assign return value from function
  */

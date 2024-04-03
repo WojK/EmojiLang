@@ -38,18 +38,14 @@ public class LLVMGenerator {
         text += "ret i32 0 }\n";
         return text;
     }
-    static void printf_i32(String id){
-        buffer += "%"+ register +" = load i32, i32* %"+id+"\n";
-        register++;
-        buffer += "%"+ register +" = call i32 (i8*, ...) @printf(i8* getelementptr inbounds ([4 x i8], [4 x i8]* @strpi, i32 0, i32 0), i32 %"+(register -1)+")\n";
+    static void printf_i32(String name){
+        buffer += "%"+ register +" = call i32 (i8*, ...) @printf(i8* getelementptr inbounds ([4 x i8], [4 x i8]* @strpi, i32 0, i32 0), i32 %"+name+")\n";
         register++;
         addTextDependOnScope();
     }
 
-    static void printf_double(String id){
-        buffer += "%"+ register +" = load double, double* %"+id+"\n";
-        register++;
-        buffer += "%"+ register +" = call i32 (i8*, ...) @printf(i8* getelementptr inbounds ([4 x i8], [4 x i8]* @strpd, i32 0, i32 0), double %"+(register -1)+")\n";
+    static void printf_double(String name){
+        buffer += "%"+ register +" = call i32 (i8*, ...) @printf(i8* getelementptr inbounds ([4 x i8], [4 x i8]* @strpd, i32 0, i32 0), double %"+name+")\n";
         register++;
         addTextDependOnScope();
     }
@@ -83,6 +79,15 @@ public class LLVMGenerator {
     }
     static void load_double(String id){
         buffer += "%"+register+" = load double, double* %"+id+"\n"; register++;
+        addTextDependOnScope();
+    }
+
+    static void load_i32_global(String id){
+        buffer += "%"+register+" = load i32, i32* @"+id +"\n"; register++;
+        addTextDependOnScope();
+    }
+    static void load_double_global(String id){
+        buffer += "%"+register+" = load double, double* @"+id+"\n"; register++;
         addTextDependOnScope();
     }
 
@@ -230,31 +235,40 @@ public class LLVMGenerator {
         addTextDependOnScope();
     }
 
-    static void enterFunction(String name, String retType, String[] args, String[] argsTypes ){
+    static int[] enterFunction(String name, String retType, String[] args, String[] argsTypes ){
+        int[] argsNamesInitialMapped = new int[args.length];
+        int[] argsNamesMapped = new int[args.length];
+        register = 0;
         buffer += "define "+retType+" @"+name+"(";
         for(int i = 0; i < args.length; i++){
             if(argsTypes[i].equals("int")){
-                buffer += "i32 %"+args[i];
+                buffer += "i32 %"+register;
             }else if(argsTypes[i].equals("real")){
-                buffer += "double %"+args[i];
+                buffer += "double %"+register;
             }
+            argsNamesInitialMapped[i] = register;
+            register++;
             if(i != args.length-1){
                 buffer += ", ";
             }
         }
+        register++;
         buffer += ") {\n";
-        for(int i = 0; i < args.length; i++){
+        for(int i = 0; i < argsNamesInitialMapped.length; i++){
             if(argsTypes[i].equals("int")){
                 buffer += "%"+register+" = alloca i32\n";
-                buffer += "store i32 %"+args[i]+", i32* %" + register+"\n";
+                buffer += "store i32 %"+argsNamesInitialMapped[i]+", i32* %" + register+"\n";
+                argsNamesMapped[i] = register;
                 register++;
             }else if(argsTypes[i].equals("real")){
                 buffer += "%"+register+" = alloca double\n";
-                buffer += "store double %"+args[i]+", double* %" +register+"\n";
+                buffer += "store double %"+argsNamesInitialMapped[i]+", double* %" +register+"\n";
+                argsNamesMapped[i] = register;
                 register++;
             }
         }
         addTextDependOnScope();
+        return argsNamesMapped;
     }
 
     static void exitFunction(String returnVariable, String returnVariableType){
@@ -266,7 +280,7 @@ public class LLVMGenerator {
         }
         buffer += "%"+register + " = load " + mappedRetType + ", "+mappedRetType+"* "+returnVariable+"\n";
         buffer += "ret " + mappedRetType + " %" +register+"\n}\n";
-        register++;
+        register = 1;
         addTextDependOnScope();
     }
 

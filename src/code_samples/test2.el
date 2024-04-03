@@ -1,15 +1,17 @@
 🌍 globalTwo = 2;
-🌍 globalOne = 1.1;
+
 
 🤙 real funcOne( real x )
 👉
-    🖨️(x);
+    😀 a = 0.0;
+    📖(a);
+    🖨️(a);
     ret: x;
 👈
 
 🤙 real funcTwo()
 👉
-    😀 arg = 1.1;
+    😀 arg = 2.2;
     🧨funcOne(arg);
     ret: arg;
 👈
