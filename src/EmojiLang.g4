@@ -48,7 +48,7 @@ ret: 'ret:' ID END_STAT
 if: IF '(' equal ')' OPEN_BRACKET blockif CLOSE_BRACKET
 ;
 
-blockif: stat
+blockif: stat*
 ;
 
 equal: equalFactor '==' equalFactor
@@ -63,7 +63,7 @@ loop: FOR '(' repetitions ')' OPEN_BRACKET loopBlock CLOSE_BRACKET
 repetitions: INT | ID
 ;
 
-loopBlock: stat
+loopBlock: stat*
 ;
 
 globalDeclatarion: '🌍' ID '=' globalValue

@@ -172,7 +172,7 @@ public class LLVMActions extends EmojiLangBaseListener {
             }
             if(localVariables.containsKey(ID)){
                 VarType type = localVariables.get(ID);
-                if(localVariablesMapped.containsValue(ID)) ID = localVariablesMapped.get(ID);
+                if(localVariablesMapped.containsKey(ID)) ID = localVariablesMapped.get(ID);
                 if(type == VarType.INT){
                     LLVMGenerator.load_i32(ID);
                     LLVMGenerator.printf_i32(String.valueOf(LLVMGenerator.register - 1));

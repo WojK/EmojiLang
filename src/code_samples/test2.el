@@ -1,19 +1,21 @@
 🌍 globalTwo = 2;
 
-
-🤙 real funcOne( real x )
+🤙 int funcTwo(int a)
 👉
-    😀 a = 0.0;
-    📖(a);
-    🖨️(a);
-    ret: x;
+    😀 loopRep = 5;
+
+    🔁(4)👉
+        🖨️(globalTwo);
+    👈
+
+    ret: a;
 👈
 
-🤙 real funcTwo()
+🤙 int funcOne()
 👉
-    😀 arg = 2.2;
-    🧨funcOne(arg);
+    😀 arg = 3;
+    🧨funcTwo(arg);
     ret: arg;
 👈
 
-🧨funcTwo();
+🧨funcOne();

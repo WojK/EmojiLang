@@ -23,7 +23,6 @@ public class LLVMGenerator {
         buffer = "";
     }
 
-
     static String generate(){
         String text = "";
         text += "declare i32 @printf(i8*, ...)\n";
