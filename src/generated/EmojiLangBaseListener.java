@@ -173,6 +173,18 @@ public class EmojiLangBaseListener implements EmojiLangListener {
 	 *
 	 * <p>The default implementation does nothing.</p>
 	 */
+	@Override public void enterStringDeclaration(EmojiLangParser.StringDeclarationContext ctx) { }
+	/**
+	 * {@inheritDoc}
+	 *
+	 * <p>The default implementation does nothing.</p>
+	 */
+	@Override public void exitStringDeclaration(EmojiLangParser.StringDeclarationContext ctx) { }
+	/**
+	 * {@inheritDoc}
+	 *
+	 * <p>The default implementation does nothing.</p>
+	 */
 	@Override public void enterArrayValues(EmojiLangParser.ArrayValuesContext ctx) { }
 	/**
 	 * {@inheritDoc}

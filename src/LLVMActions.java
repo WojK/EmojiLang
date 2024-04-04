@@ -83,6 +83,9 @@ public class LLVMActions extends EmojiLangBaseListener {
 
     Map<String, ArrayType> arrayNamesMapped = new HashMap<>();
 
+    Map<String, String> stringMapped = new HashMap<>();
+
+
 
     Stack<Value> stack = new Stack<Value>();
 
@@ -231,14 +234,12 @@ public class LLVMActions extends EmojiLangBaseListener {
     }
 
 
-
-
     @Override
     public void exitPrint(EmojiLangParser.PrintContext ctx) {
 
         if(ctx.ID() != null ){
             String ID = ctx.ID().getText();
-
+            // TODO: check if variable is in string map
             if(globalVariables.containsKey(ID)){
                 VarType type = globalVariables.get(ID);
                 if(type == VarType.INT){
@@ -565,6 +566,16 @@ public class LLVMActions extends EmojiLangBaseListener {
             int registerAllocatedArray = LLVMGenerator.allocateIntArrayAndStoreValues(arrayName ,intValues.size(), intValues.toArray(String[]::new));
             arrayNamesMapped.put(arrayName, new ArrayType(arrayName, VarType.INT, registerAllocatedArray, intValues.size()));
         }
+    }
+
+    @Override
+    public void exitStringDeclaration(EmojiLangParser.StringDeclarationContext ctx) {
+        String varName = ctx.ID().getText();
+        String value = ctx.STRING().getText();
+        String valueWithoutQuote = value.substring(1, value.length() -1);
+
+        LLVMGenerator.declare_string(valueWithoutQuote.length(), varName, valueWithoutQuote);
+        //TODO: add variable to string map
     }
 
 

@@ -40,7 +40,8 @@ stat: ( declaration
     | functionExec
     | structDeclaration
     | assignValueToStructure
-    | arrayDeclaration ) END_STAT
+    | arrayDeclaration
+    | stringDeclaration ) END_STAT
     | if
     | loop
 ;
@@ -49,6 +50,9 @@ structDeclaration: '🏗️' structName ID
 ;
 
 arrayDeclaration: '🤠' ID '=' '{'arrayValues'}'
+;
+
+stringDeclaration: '🕸️' ID '=' STRING
 ;
 
 arrayValues: ((INT | REAL)',')* (INT|REAL)?
@@ -175,6 +179,9 @@ REAL: '0'..'9'+'.''0'..'9'+
 ;
 
 INT: '0'..'9'+
+;
+
+STRING :  '"' ( ~('\\'|'"') )* '"'
 ;
 
 ADD: '+'
