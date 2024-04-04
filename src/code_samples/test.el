@@ -4,7 +4,7 @@
 🤙 real funcOne( real x )
 👉
     🖨️(x);
-    ret: x;
+    ret x;
 👈
 
 🤙 real funcTwo()
@@ -15,7 +15,7 @@
     😀 argFour = argThree + 1.0;
 
     🧨funcOne(argFour);
-    ret: arg;
+    ret arg;
 👈
 
 🧨funcTwo();

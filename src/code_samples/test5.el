@@ -5,7 +5,7 @@
     🤠 x = {1, 2, 3, 6};
     arrVal = x[1] * 2;
     🖨️(arrVal);
-    ret: o;
+    ret o;
 👈
 
 🧨funcOne();

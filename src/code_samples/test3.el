@@ -8,14 +8,14 @@
         🖨️(globalTwo);
     👈
 
-    ret: ifFactor;
+    ret ifFactor;
 👈
 
 🤙 int funcOne()
 👉
     😀 argFun = 2;
     🧨funcTwo(argFun);
-    ret: argFun;
+    ret argFun;
 👈
 
 🧨funcOne();

@@ -86,7 +86,7 @@ fargs: (fargsType ID ',')* (fargsType ID)?
 fargsType: 'int' | 'real'
 ;
 
-ret: 'ret:' ID END_STAT
+ret: 'ret' ID END_STAT
 ;
 
 if: IF '(' equal ')' OPEN_BRACKET blockif CLOSE_BRACKET

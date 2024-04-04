@@ -2,8 +2,14 @@
 👉
     😀 o = 1.1;
     🕸️ str = "michal";
-    🖨️(str);
-    ret: o;
+    🕸️ strtwo = "szary";
+
+    🕸️ concated = str + strtwo;
+
+    😀 odd = 1.1;
+
+    🖨️(concated);
+    ret o;
 👈
 
 🧨funcOne();

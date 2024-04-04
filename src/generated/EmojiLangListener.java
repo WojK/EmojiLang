@@ -148,6 +148,26 @@ public interface EmojiLangListener extends ParseTreeListener {
 	 */
 	void exitStringDeclaration(EmojiLangParser.StringDeclarationContext ctx);
 	/**
+	 * Enter a parse tree produced by {@link EmojiLangParser#stringConcat}.
+	 * @param ctx the parse tree
+	 */
+	void enterStringConcat(EmojiLangParser.StringConcatContext ctx);
+	/**
+	 * Exit a parse tree produced by {@link EmojiLangParser#stringConcat}.
+	 * @param ctx the parse tree
+	 */
+	void exitStringConcat(EmojiLangParser.StringConcatContext ctx);
+	/**
+	 * Enter a parse tree produced by {@link EmojiLangParser#stringValue}.
+	 * @param ctx the parse tree
+	 */
+	void enterStringValue(EmojiLangParser.StringValueContext ctx);
+	/**
+	 * Exit a parse tree produced by {@link EmojiLangParser#stringValue}.
+	 * @param ctx the parse tree
+	 */
+	void exitStringValue(EmojiLangParser.StringValueContext ctx);
+	/**
 	 * Enter a parse tree produced by {@link EmojiLangParser#arrayValues}.
 	 * @param ctx the parse tree
 	 */

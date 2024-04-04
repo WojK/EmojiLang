@@ -86,15 +86,12 @@ public class LLVMActions extends EmojiLangBaseListener {
     Map<String, VarType> globalVariables = new HashMap<String, VarType>();
     Map<String, VarType> localVariables = new HashMap<String, VarType>();
     Map<String, String> localVariablesMapped = new HashMap<String, String>();
-
     Map<String, String> functionsWithRetType = new HashMap<>();
     Map<String, Structure> nameToStructure = new HashMap<>();
     Map<String, String> structuresVariablesMappedNames = new HashMap<>();
 
     Map<String, Structure> structuresVariablesToStructure = new HashMap<>();
-
     Map<String, ArrayType> arrayNamesMapped = new HashMap<>();
-
     Map<String, StringType> stringMapped = new HashMap<>();
 
 
@@ -250,7 +247,6 @@ public class LLVMActions extends EmojiLangBaseListener {
 
         if(ctx.ID() != null ){
             String ID = ctx.ID().getText();
-            // TODO: check if variable is in string map
             if(globalVariables.containsKey(ID)){
                 VarType type = globalVariables.get(ID);
                 if(type == VarType.INT){
@@ -591,10 +587,11 @@ public class LLVMActions extends EmojiLangBaseListener {
         String varName = ctx.ID().getText();
         String value = ctx.STRING().getText();
         String valueWithoutQuote = value.substring(1, value.length() -1);
+        int lengthWithNewLine = valueWithoutQuote.length()+1;
+        String valueWithNewLine = valueWithoutQuote+"\\0A";
 
-        int stringRegisterPointer = LLVMGenerator.declare_string(valueWithoutQuote.length(), varName, valueWithoutQuote);
-        stringMapped.put(varName, new StringType(valueWithoutQuote.length(), Integer.toString(stringRegisterPointer), valueWithoutQuote));
-        //TODO: add variable to string map
+        int stringRegisterPointer = LLVMGenerator.declare_string(lengthWithNewLine, varName, valueWithNewLine);
+        stringMapped.put(varName, new StringType(lengthWithNewLine, Integer.toString(stringRegisterPointer), valueWithNewLine));
     }
 
     @Override
@@ -607,18 +604,16 @@ public class LLVMActions extends EmojiLangBaseListener {
 
         Value value2 = stack.pop();
         Value value1 = stack.pop();
-        //pop two string values from stack
 
         StringType stringObj1 = stringMapped.get(value1.name);
         StringType stringObj2 = stringMapped.get(value2.name);
 
-        int concatedLength = stringObj1.length + stringObj2.length;
-        String concatedValue = stringObj1.value + stringObj2.value;
+        int concatedLength = stringObj1.length + stringObj2.length - 1;
+        String concatedValue = stringObj1.value.substring(0, stringObj1.value.length() -3) + stringObj2.value;
 
         int stringRegisterPointer = LLVMGenerator.declare_string(concatedLength, stringName, concatedValue);
-        stringMapped.put(stringName, new StringType(concatedValue.length(), Integer.toString(stringRegisterPointer), concatedValue));
+        stringMapped.put(stringName, new StringType(concatedLength, Integer.toString(stringRegisterPointer), concatedValue));
         //check if name already exists, if exists then error, if not exists then declare string with length connected
-
 
     }
 
@@ -633,19 +628,17 @@ public class LLVMActions extends EmojiLangBaseListener {
         if(ctx.STRING() != null){
             String value = ctx.STRING().getText();
             String valueWithoutQuote = value.substring(1, value.length() -1);
+            int lengthWithNewLine = valueWithoutQuote.length()+1;
+            String valueWithNewLine = valueWithoutQuote+"\\0A";
 
             String anonymousName = "anonymous" + LLVMGenerator.anonymousString;
             LLVMGenerator.anonymousString++;
 
-            int stringRegisterPointer = LLVMGenerator.declare_string(valueWithoutQuote.length(), anonymousName, valueWithoutQuote);
-            stringMapped.put(anonymousName, new StringType(valueWithoutQuote.length(), Integer.toString(stringRegisterPointer), valueWithoutQuote));
+            int stringRegisterPointer = LLVMGenerator.declare_string(lengthWithNewLine, anonymousName, valueWithNewLine);
+            stringMapped.put(anonymousName, new StringType(lengthWithNewLine, Integer.toString(stringRegisterPointer), valueWithNewLine));
             stack.push(new Value(anonymousName, VarType.STRING));
-
             return;
         }
-        //if ID -> then add on stack
-
-        //if raw text -> allocate string, and add it to stack
     }
 
 
@@ -654,7 +647,3 @@ public class LLVMActions extends EmojiLangBaseListener {
             System.exit(1);
     }
 }
-
-/*
-TODO: Assign return value from function
- */

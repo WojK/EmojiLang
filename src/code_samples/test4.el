@@ -12,7 +12,7 @@
 
     😀 b = 5 + s🫱a;
     🖨️(b);
-    ret: x;
+    ret x;
 👈
 
 🤙 real funcTwo()
@@ -20,7 +20,7 @@
     😀 x = 5.5;
     🧨funcOne(x);
 
-    ret: x;
+    ret x;
 👈
 
 🧨funcTwo();
