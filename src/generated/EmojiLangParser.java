@@ -54,7 +54,7 @@ public class EmojiLangParser extends Parser {
 		return new String[] {
 			null, "'\\uD83E\uDD19'", "'('", "')'", "'int'", "'real'", "'\\uD83E\uDDE8'", 
 			"','", "'\\uD83C\uDFD7\\uFE0F'", "'\\uD83E\uDD20'", "'='", "'{'", "'}'", 
-			"'\\uD83D\uDD78\\uFE0F'", "'\\uD83E\uDEF1'", "'ret:'", "'=='", "'\\uD83C\uDF0D'", 
+			"'\\uD83D\uDD78\\uFE0F'", "'\\uD83E\uDEF1'", "'ret'", "'=='", "'\\uD83C\uDF0D'", 
 			"'['", "']'", "'\\uD83E\uDD14'", "'\\uD83D\uDD01'", "'\\uD83D\uDCD6'", 
 			"'\\uD83D\uDDA8\\uFE0F'", "'\\uD83D\uDC49'", "'\\uD83D\uDC48'", "'\\uD83D\uDE00'", 
 			"';'", null, null, null, null, "'+'", "'-'", "'*'", "'/'"

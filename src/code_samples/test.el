@@ -1,21 +1,32 @@
-🌍 globalTwo = 2;
-🌍 globalOne = 5.1;
+🌍 luckyNumber = 777;
 
-🤙 real funcOne( real x )
+🤙 int pow( int x, int  index)
 👉
-    🖨️(x);
-    ret x;
+    😀 output = x;
+    😀 rep = index - 1;
+    🔁(rep)👉
+        output = output * x;
+    👈
+    🖨️(output);
+
+    🕸️ message = "Nice";
+    🤔(luckyNumber == output)👉
+        🖨️(message);
+    👈
+
+    ret output;
 👈
 
-🤙 real funcTwo()
+🤙 int start()
 👉
-    😀 arg = 1.1;
-    😀 argTwo = 2.2;
-    😀 argThree = globalOne + argTwo;
-    😀 argFour = argThree + 1.0;
+    😀 base = 0;
+    😀 idx = 0;
+    📖(base);
+    📖(idx);
 
-    🧨funcOne(argFour);
-    ret arg;
+    🧨pow(base, idx);
+
+    ret base;
 👈
 
-🧨funcTwo();
+🧨start();

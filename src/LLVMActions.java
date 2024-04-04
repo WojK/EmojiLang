@@ -140,16 +140,36 @@ public class LLVMActions extends EmojiLangBaseListener {
     public void exitDeclaration(EmojiLangParser.DeclarationContext ctx) {
         String ID = ctx.ID().getText();
         Value v = stack.pop();
-        localVariables.put(ID, v.type);
+
 
         if( v.type == VarType.INT ){
             LLVMGenerator.declare_i32(ID);
             LLVMGenerator.assign_i32(ID, v.name);
+            localVariables.put(ID, VarType.INT);
         }
         if( v.type == VarType.REAL ){
             LLVMGenerator.declare_double(ID);
             LLVMGenerator.assign_double(ID, v.name);
+            localVariables.put(ID, VarType.REAL);
         }
+
+        if(v.type == VarType.VARIABLE){
+            String name = localVariablesMapped.containsKey(v.name) ? localVariablesMapped.get(v.name) : v.name;
+            VarType typeFromOtherVariable = localVariables.get(v.name);
+            if(typeFromOtherVariable == VarType.REAL ){
+                LLVMGenerator.declare_double(ID);
+                LLVMGenerator.load_double(name);
+                LLVMGenerator.assign_double(ID, "%"+(LLVMGenerator.register-1));
+                localVariables.put(ID, VarType.REAL);
+            }
+            if(typeFromOtherVariable == VarType.INT ){
+                LLVMGenerator.declare_i32(ID);
+                LLVMGenerator.load_i32(name);
+                LLVMGenerator.assign_i32(ID, "%"+(LLVMGenerator.register-1));
+                localVariables.put(ID, VarType.INT);
+            }
+        }
+
     }
 
     @Override
