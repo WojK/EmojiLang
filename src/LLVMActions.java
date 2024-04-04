@@ -5,7 +5,7 @@ import org.antlr.v4.runtime.tree.ParseTree;
 import java.util.*;
 import java.util.stream.Collectors;
 
-enum VarType{ INT, REAL, VARIABLE}
+enum VarType{ INT, REAL, VARIABLE, STRING}
 
 class Value{
     public String name;
@@ -72,10 +72,12 @@ class ArrayType {
 class StringType{
     int length;
     String registerName;
+    String value;
 
-    public StringType(int length, String registerName){
+    public StringType(int length, String registerName, String value){
         this.length = length;
         this.registerName = registerName;
+        this.value = value;
     }
 }
 
@@ -591,8 +593,59 @@ public class LLVMActions extends EmojiLangBaseListener {
         String valueWithoutQuote = value.substring(1, value.length() -1);
 
         int stringRegisterPointer = LLVMGenerator.declare_string(valueWithoutQuote.length(), varName, valueWithoutQuote);
-        stringMapped.put(varName, new StringType(valueWithoutQuote.length(), Integer.toString(stringRegisterPointer)));
+        stringMapped.put(varName, new StringType(valueWithoutQuote.length(), Integer.toString(stringRegisterPointer), valueWithoutQuote));
         //TODO: add variable to string map
+    }
+
+    @Override
+    public void exitStringConcat(EmojiLangParser.StringConcatContext ctx){
+        String stringName = ctx.ID().getText();
+
+        if(stringMapped.containsKey(stringName)){
+            error(ctx.getStart().getLine(), "Already used string variable "+ctx.ID().getText());
+        }
+
+        Value value2 = stack.pop();
+        Value value1 = stack.pop();
+        //pop two string values from stack
+
+        StringType stringObj1 = stringMapped.get(value1.name);
+        StringType stringObj2 = stringMapped.get(value2.name);
+
+        int concatedLength = stringObj1.length + stringObj2.length;
+        String concatedValue = stringObj1.value + stringObj2.value;
+
+        int stringRegisterPointer = LLVMGenerator.declare_string(concatedLength, stringName, concatedValue);
+        stringMapped.put(stringName, new StringType(concatedValue.length(), Integer.toString(stringRegisterPointer), concatedValue));
+        //check if name already exists, if exists then error, if not exists then declare string with length connected
+
+
+    }
+
+    @Override
+    public void exitStringValue(EmojiLangParser.StringValueContext ctx){
+
+        if(ctx.ID() != null){
+            stack.push(new Value(ctx.ID().getText(), VarType.STRING));
+            return;
+        }
+
+        if(ctx.STRING() != null){
+            String value = ctx.STRING().getText();
+            String valueWithoutQuote = value.substring(1, value.length() -1);
+
+            String anonymousName = "anonymous" + LLVMGenerator.anonymousString;
+            LLVMGenerator.anonymousString++;
+
+            int stringRegisterPointer = LLVMGenerator.declare_string(valueWithoutQuote.length(), anonymousName, valueWithoutQuote);
+            stringMapped.put(anonymousName, new StringType(valueWithoutQuote.length(), Integer.toString(stringRegisterPointer), valueWithoutQuote));
+            stack.push(new Value(anonymousName, VarType.STRING));
+
+            return;
+        }
+        //if ID -> then add on stack
+
+        //if raw text -> allocate string, and add it to stack
     }
 
 

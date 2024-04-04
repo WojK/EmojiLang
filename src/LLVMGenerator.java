@@ -10,6 +10,7 @@ public class LLVMGenerator {
 
     static int register = 1;
     static int br = 0;
+    static int anonymousString = 0;
 
     static boolean global;
 

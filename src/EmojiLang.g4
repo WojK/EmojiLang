@@ -41,7 +41,8 @@ stat: ( declaration
     | structDeclaration
     | assignValueToStructure
     | arrayDeclaration
-    | stringDeclaration ) END_STAT
+    | stringDeclaration
+    | stringConcat) END_STAT
     | if
     | loop
 ;
@@ -53,6 +54,12 @@ arrayDeclaration: '🤠' ID '=' '{'arrayValues'}'
 ;
 
 stringDeclaration: '🕸️' ID '=' STRING
+;
+
+stringConcat: '🕸️' ID '=' stringValue ADD stringValue
+;
+
+stringValue: (ID | STRING)
 ;
 
 arrayValues: ((INT | REAL)',')* (INT|REAL)?
