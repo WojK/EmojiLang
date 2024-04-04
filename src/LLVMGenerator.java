@@ -35,6 +35,7 @@ public class LLVMGenerator {
         text += "@strs = constant [3 x i8] c\"%d\\00\"\n";
         text += "@strd = constant [4 x i8] c\"%lf\\00\"\n";
         text += header_top;
+        text += "@.str = private unnamed_addr constant [3 x i8] c\"%s\\00\"\n";
         text += header_text;
         text += "define i32 @main() nounwind{\n";
         text += main_text;
@@ -393,7 +394,7 @@ public class LLVMGenerator {
         addTextDependOnScope();
     }
 
-    static void declare_string(int size, String id, String value){
+    public static int declare_string(int size, String id, String value){
         header_top += "@__const.main."+(id)+" = private unnamed_addr constant ["+(size+1)+" x i8] c\""+(value)+"\\00\"\n";
 
         buffer += "%"+register+" = alloca ["+(size+1)+" x i8]\n";
@@ -403,6 +404,20 @@ public class LLVMGenerator {
         register++;
         buffer += "call void @llvm.memcpy.p0i8.p0i8.i64(i8* %"+(register-1)+", i8* align 1 getelementptr inbounds " +
                 "(["+(size+1)+" x i8], ["+(size+1)+" x i8]* @__const.main."+id+", i32 0, i32 0), i64 "+(size+1)+", i1 false)\n";
+        addTextDependOnScope();
+
+        return arrayRegister;
+    }
+
+    public static void getStringPtr(int size, String mappedRegisterName){
+        buffer += "%"+(register)+" = getelementptr inbounds ["+(size+1)+" x i8], ["+(size+1)+" x i8]* %"+(mappedRegisterName)+", i64 0, i64 0\n";
+        register++;
+        addTextDependOnScope();
+    }
+
+    public static void printf_string(){
+        buffer += "%"+ register +" = call i32 (i8*, ...) @printf(i8* getelementptr inbounds ([3 x i8], [3 x i8]* @.str, i64 0, i64 0), i8* %"+(register-1)+")\n";
+        register++;
         addTextDependOnScope();
     }
 }

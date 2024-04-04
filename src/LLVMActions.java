@@ -69,6 +69,16 @@ class ArrayType {
     }
 }
 
+class StringType{
+    int length;
+    String registerName;
+
+    public StringType(int length, String registerName){
+        this.length = length;
+        this.registerName = registerName;
+    }
+}
+
 public class LLVMActions extends EmojiLangBaseListener {
 
     Map<String, VarType> globalVariables = new HashMap<String, VarType>();
@@ -83,8 +93,7 @@ public class LLVMActions extends EmojiLangBaseListener {
 
     Map<String, ArrayType> arrayNamesMapped = new HashMap<>();
 
-    Map<String, String> stringMapped = new HashMap<>();
-
+    Map<String, StringType> stringMapped = new HashMap<>();
 
 
     Stack<Value> stack = new Stack<Value>();
@@ -261,6 +270,13 @@ public class LLVMActions extends EmojiLangBaseListener {
                     LLVMGenerator.load_double(ID);
                     LLVMGenerator.printf_double(String.valueOf(LLVMGenerator.register - 1));
                 }
+                return;
+            }
+            if(stringMapped.containsKey(ID)){
+                StringType stringObj = stringMapped.get(ID);
+
+                LLVMGenerator.getStringPtr(stringObj.length, stringObj.registerName);
+                LLVMGenerator.printf_string();
                 return;
             }
             error(ctx.getStart().getLine(), "Unknown variable "+ID);
@@ -574,7 +590,8 @@ public class LLVMActions extends EmojiLangBaseListener {
         String value = ctx.STRING().getText();
         String valueWithoutQuote = value.substring(1, value.length() -1);
 
-        LLVMGenerator.declare_string(valueWithoutQuote.length(), varName, valueWithoutQuote);
+        int stringRegisterPointer = LLVMGenerator.declare_string(valueWithoutQuote.length(), varName, valueWithoutQuote);
+        stringMapped.put(varName, new StringType(valueWithoutQuote.length(), Integer.toString(stringRegisterPointer)));
         //TODO: add variable to string map
     }
 
