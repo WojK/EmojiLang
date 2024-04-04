@@ -5,7 +5,7 @@ import org.antlr.v4.runtime.tree.ParseTree;
 import java.util.*;
 import java.util.stream.Collectors;
 
-enum VarType{ INT, REAL, VARIABLE, STRUCT_PROP_INT, STRUCT_PROP_REAL}
+enum VarType{ INT, REAL, VARIABLE}
 
 class Value{
     public String name;
@@ -56,6 +56,19 @@ class Structure {
     }
 }
 
+class ArrayType {
+    VarType type;
+    String name;
+    int numberOfElems;
+    int mappedRegisterName;
+    public ArrayType(String name, VarType type, int mappedRegisterName, int numberOfElems){
+        this.type = type;
+        this.name = name;
+        this.mappedRegisterName = mappedRegisterName;
+        this.numberOfElems = numberOfElems;
+    }
+}
+
 public class LLVMActions extends EmojiLangBaseListener {
 
     Map<String, VarType> globalVariables = new HashMap<String, VarType>();
@@ -68,6 +81,7 @@ public class LLVMActions extends EmojiLangBaseListener {
 
     Map<String, Structure> structuresVariablesToStructure = new HashMap<>();
 
+    Map<String, ArrayType> arrayNamesMapped = new HashMap<>();
 
 
     Stack<Value> stack = new Stack<Value>();
@@ -195,6 +209,27 @@ public class LLVMActions extends EmojiLangBaseListener {
             stack.push(new Value("%" + (LLVMGenerator.register - 1), VarType.REAL));
         }
     }
+
+    @Override
+    public void exitValueFromArray(EmojiLangParser.ValueFromArrayContext ctx) {
+        String arrName = ctx.arrValue().ID().getText();
+        if(!arrayNamesMapped.containsKey(arrName)){
+            error(ctx.getStart().getLine(), "Array "+(arrName)+" not declared");
+        }
+        ArrayType array = arrayNamesMapped.get(arrName);
+        String idx = ctx.arrValue().INT().getText();
+        if(array.type == VarType.INT){
+            LLVMGenerator.getArrayPtrInt(array.mappedRegisterName, array.numberOfElems, idx);
+            LLVMGenerator.load_i32(String.valueOf(LLVMGenerator.register -1));
+            stack.push(new Value("%" + (LLVMGenerator.register - 1), VarType.INT));
+        }
+        if(array.type == VarType.REAL){
+            LLVMGenerator.getArrayPtrReal(array.mappedRegisterName, array.numberOfElems, idx);
+            LLVMGenerator.load_double(String.valueOf(LLVMGenerator.register -1));
+            stack.push(new Value("%" + (LLVMGenerator.register - 1), VarType.REAL));
+        }
+    }
+
 
 
 
@@ -490,7 +525,7 @@ public class LLVMActions extends EmojiLangBaseListener {
     }
 
     @Override
-    public void enterAssignValueToStructure(EmojiLangParser.AssignValueToStructureContext ctx) {
+    public void exitAssignValueToStructure(EmojiLangParser.AssignValueToStructureContext ctx) {
         String structVariableName = ctx.ID().getText();
         if(!structuresVariablesMappedNames.containsKey(structVariableName)) error(ctx.getStart().getLine(), "Struct not initialized " + structVariableName);
         String propName = ctx.structProp().getText();
@@ -514,6 +549,24 @@ public class LLVMActions extends EmojiLangBaseListener {
         }
 
     }
+
+    @Override public void exitArrayDeclaration(EmojiLangParser.ArrayDeclarationContext ctx) {
+        String arrayName = ctx.ID().getText();
+        List<String> intValues = ctx.arrayValues().INT().stream().map(ParseTree::getText).collect(Collectors.toList());
+        List<String> realValues = ctx.arrayValues().REAL().stream().map(ParseTree::getText).collect(Collectors.toList());
+        if(!intValues.isEmpty() && !realValues.isEmpty()) error(ctx.getStart().getLine(), "Trying to assign mixed value types to array " + arrayName);
+
+        if(!realValues.isEmpty()){
+            int registerAllocatedArray = LLVMGenerator.allocateDoubleArrayAndStoreValues(realValues.size(), realValues.toArray(String[]::new));
+            arrayNamesMapped.put(arrayName, new ArrayType(arrayName, VarType.REAL, registerAllocatedArray, realValues.size()));
+        }
+
+        if(!intValues.isEmpty()){
+            int registerAllocatedArray = LLVMGenerator.allocateIntArrayAndStoreValues(arrayName ,intValues.size(), intValues.toArray(String[]::new));
+            arrayNamesMapped.put(arrayName, new ArrayType(arrayName, VarType.INT, registerAllocatedArray, intValues.size()));
+        }
+    }
+
 
     void error ( int line, String msg){
             System.err.println("Error, line " + line + ", " + msg);

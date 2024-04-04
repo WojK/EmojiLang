@@ -128,6 +128,26 @@ public interface EmojiLangListener extends ParseTreeListener {
 	 */
 	void exitStructDeclaration(EmojiLangParser.StructDeclarationContext ctx);
 	/**
+	 * Enter a parse tree produced by {@link EmojiLangParser#arrayDeclaration}.
+	 * @param ctx the parse tree
+	 */
+	void enterArrayDeclaration(EmojiLangParser.ArrayDeclarationContext ctx);
+	/**
+	 * Exit a parse tree produced by {@link EmojiLangParser#arrayDeclaration}.
+	 * @param ctx the parse tree
+	 */
+	void exitArrayDeclaration(EmojiLangParser.ArrayDeclarationContext ctx);
+	/**
+	 * Enter a parse tree produced by {@link EmojiLangParser#arrayValues}.
+	 * @param ctx the parse tree
+	 */
+	void enterArrayValues(EmojiLangParser.ArrayValuesContext ctx);
+	/**
+	 * Exit a parse tree produced by {@link EmojiLangParser#arrayValues}.
+	 * @param ctx the parse tree
+	 */
+	void exitArrayValues(EmojiLangParser.ArrayValuesContext ctx);
+	/**
 	 * Enter a parse tree produced by {@link EmojiLangParser#assignValueToStructure}.
 	 * @param ctx the parse tree
 	 */
@@ -438,6 +458,18 @@ public interface EmojiLangListener extends ParseTreeListener {
 	 */
 	void exitValueFromStructProperty(EmojiLangParser.ValueFromStructPropertyContext ctx);
 	/**
+	 * Enter a parse tree produced by the {@code valueFromArray}
+	 * labeled alternative in {@link EmojiLangParser#expression2}.
+	 * @param ctx the parse tree
+	 */
+	void enterValueFromArray(EmojiLangParser.ValueFromArrayContext ctx);
+	/**
+	 * Exit a parse tree produced by the {@code valueFromArray}
+	 * labeled alternative in {@link EmojiLangParser#expression2}.
+	 * @param ctx the parse tree
+	 */
+	void exitValueFromArray(EmojiLangParser.ValueFromArrayContext ctx);
+	/**
 	 * Enter a parse tree produced by the {@code par}
 	 * labeled alternative in {@link EmojiLangParser#expression2}.
 	 * @param ctx the parse tree
@@ -449,6 +481,16 @@ public interface EmojiLangListener extends ParseTreeListener {
 	 * @param ctx the parse tree
 	 */
 	void exitPar(EmojiLangParser.ParContext ctx);
+	/**
+	 * Enter a parse tree produced by {@link EmojiLangParser#arrValue}.
+	 * @param ctx the parse tree
+	 */
+	void enterArrValue(EmojiLangParser.ArrValueContext ctx);
+	/**
+	 * Exit a parse tree produced by {@link EmojiLangParser#arrValue}.
+	 * @param ctx the parse tree
+	 */
+	void exitArrValue(EmojiLangParser.ArrValueContext ctx);
 	/**
 	 * Enter a parse tree produced by {@link EmojiLangParser#valueFromStructProp}.
 	 * @param ctx the parse tree

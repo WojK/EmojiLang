@@ -161,6 +161,30 @@ public class EmojiLangBaseListener implements EmojiLangListener {
 	 *
 	 * <p>The default implementation does nothing.</p>
 	 */
+	@Override public void enterArrayDeclaration(EmojiLangParser.ArrayDeclarationContext ctx) { }
+	/**
+	 * {@inheritDoc}
+	 *
+	 * <p>The default implementation does nothing.</p>
+	 */
+	@Override public void exitArrayDeclaration(EmojiLangParser.ArrayDeclarationContext ctx) { }
+	/**
+	 * {@inheritDoc}
+	 *
+	 * <p>The default implementation does nothing.</p>
+	 */
+	@Override public void enterArrayValues(EmojiLangParser.ArrayValuesContext ctx) { }
+	/**
+	 * {@inheritDoc}
+	 *
+	 * <p>The default implementation does nothing.</p>
+	 */
+	@Override public void exitArrayValues(EmojiLangParser.ArrayValuesContext ctx) { }
+	/**
+	 * {@inheritDoc}
+	 *
+	 * <p>The default implementation does nothing.</p>
+	 */
 	@Override public void enterAssignValueToStructure(EmojiLangParser.AssignValueToStructureContext ctx) { }
 	/**
 	 * {@inheritDoc}
@@ -509,6 +533,18 @@ public class EmojiLangBaseListener implements EmojiLangListener {
 	 *
 	 * <p>The default implementation does nothing.</p>
 	 */
+	@Override public void enterValueFromArray(EmojiLangParser.ValueFromArrayContext ctx) { }
+	/**
+	 * {@inheritDoc}
+	 *
+	 * <p>The default implementation does nothing.</p>
+	 */
+	@Override public void exitValueFromArray(EmojiLangParser.ValueFromArrayContext ctx) { }
+	/**
+	 * {@inheritDoc}
+	 *
+	 * <p>The default implementation does nothing.</p>
+	 */
 	@Override public void enterPar(EmojiLangParser.ParContext ctx) { }
 	/**
 	 * {@inheritDoc}
@@ -516,6 +552,18 @@ public class EmojiLangBaseListener implements EmojiLangListener {
 	 * <p>The default implementation does nothing.</p>
 	 */
 	@Override public void exitPar(EmojiLangParser.ParContext ctx) { }
+	/**
+	 * {@inheritDoc}
+	 *
+	 * <p>The default implementation does nothing.</p>
+	 */
+	@Override public void enterArrValue(EmojiLangParser.ArrValueContext ctx) { }
+	/**
+	 * {@inheritDoc}
+	 *
+	 * <p>The default implementation does nothing.</p>
+	 */
+	@Override public void exitArrValue(EmojiLangParser.ArrValueContext ctx) { }
 	/**
 	 * {@inheritDoc}
 	 *

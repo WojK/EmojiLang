@@ -1,4 +1,4 @@
-🏗️ Structure 👉
+🏗️ Str 👉
     int a;
     real b;
 👈
@@ -6,7 +6,7 @@
 
 🤙 real funcOne( real x )
 👉
-    🏗️ Structure s;
+    🏗️ Str s;
     s🫱b = 5.5;
     s🫱a = 5;
 

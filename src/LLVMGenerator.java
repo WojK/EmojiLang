@@ -3,6 +3,7 @@ import java.util.Stack;
 
 public class LLVMGenerator {
     static String header_text = "";
+    static String header_top = "";
     static String main_text = "";
 
     static String buffer = "";
@@ -27,10 +28,13 @@ public class LLVMGenerator {
         String text = "";
         text += "declare i32 @printf(i8*, ...)\n";
         text += "declare i32 @__isoc99_scanf(i8*, ...)\n";
+        text += "declare void @llvm.memset.p0i8.i64(i8* nocapture writeonly, i8, i64, i1 immarg)\n";
+        text += "declare void @llvm.memcpy.p0i8.p0i8.i64(i8* noalias nocapture writeonly, i8* noalias nocapture readonly, i64, i1 immarg)\n";
         text += "@strpi = constant [4 x i8] c\"%d\\0A\\00\"\n";
         text += "@strpd = constant [4 x i8] c\"%f\\0A\\00\"\n";
         text += "@strs = constant [3 x i8] c\"%d\\00\"\n";
         text += "@strd = constant [4 x i8] c\"%lf\\00\"\n";
+        text += header_top;
         text += header_text;
         text += "define i32 @main() nounwind{\n";
         text += main_text;
@@ -329,4 +333,66 @@ public class LLVMGenerator {
         register++;
         addTextDependOnScope();
     }
+
+    public static int allocateDoubleArrayAndStoreValues(int size, String[] values) {
+        buffer += "%"+register+" = alloca ["+size+" x double]\n";
+        register++;
+        int registerAllocatedArray = register - 1;
+        buffer += "%"+register+" = bitcast ["+size+" x double]* %"+(register-1)+" to i8*\n";
+        register++;
+        buffer += "call void @llvm.memset.p0i8.i64(i8* %"+(register-1)+", i8 0, i64 "+(size*8)+", i1 false)\n";
+        buffer += "%"+register+" = bitcast i8* %"+(register-1)+" to ["+size+" x double]*\n";
+        register++;
+        int registerArrayPtr = register - 1;
+
+        for(int i = 0; i < values.length; i++){
+            getPtrArrayAndStoreValue(values.length, values[i],registerArrayPtr ,i);
+        }
+        addTextDependOnScope();
+        return registerAllocatedArray;
+    }
+
+    public static void getPtrArrayAndStoreValue(int size, String value, int arrayRegisterPtr, int arrayIdx){
+        buffer += "%"+register+" = getelementptr inbounds ["+size+" x double], ["+size+" x double]* %"+arrayRegisterPtr+", i32 0, i32 "+ arrayIdx+"\n";
+        register++;
+        buffer += "store double "+(value)+", double* %"+(register-1)+"\n";
+    }
+
+    public static int allocateIntArrayAndStoreValues(String arrayName, int size, String[] array) {
+        String globalArrayName = "@__const.main."+arrayName;
+
+        header_top += globalArrayName+" = unnamed_addr constant ["+size+ "x i32] [";
+        for(int i = 0; i < array.length; i++){
+            header_top+= "i32 "+ array[i];
+            if(i != array.length-1){
+                header_top += ", ";
+            }
+        }
+        header_top += "]\n";
+        buffer += "%"+(register)+" = alloca ["+(size)+" x i32]\n";
+        register++;
+        int registerAllocatedArray = register - 1;
+        buffer += "%"+(register)+" = bitcast ["+(size)+" x i32]* %"+(register-1)+" to i8*\n";
+        register++;
+        buffer += "call void @llvm.memcpy.p0i8.p0i8.i64(i8* %"+(register-1)+", i8* bitcast (["+(size)+" x i32]* "+(globalArrayName)+" to i8*), i64 "+(size*4)+" , i1 false)\n";
+        addTextDependOnScope();
+        return registerAllocatedArray;
+    }
+
+    public static void getArrayPtrInt(int mappedRegisterName, int numberOfElems, String idx) {
+        buffer += "%"+register+" = getelementptr inbounds [" + numberOfElems+" x i32], " +
+                "["+numberOfElems+" x i32]* %"+mappedRegisterName+", i64 0, i64 "+idx+"\n";
+        register++;
+        addTextDependOnScope();
+    }
+
+    public static void getArrayPtrReal(int mappedRegisterName, int numberOfElems, String idx) {
+        buffer += "%"+register+" = getelementptr inbounds [" + numberOfElems+" x double]," +
+                " ["+numberOfElems+" x double]* %"+mappedRegisterName+", i64 0, i64 "+idx+"\n";
+        register++;
+        addTextDependOnScope();
+    }
+
+
 }
+

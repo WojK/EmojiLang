@@ -39,12 +39,19 @@ stat: ( declaration
     | print
     | functionExec
     | structDeclaration
-    | assignValueToStructure ) END_STAT
+    | assignValueToStructure
+    | arrayDeclaration ) END_STAT
     | if
     | loop
 ;
 
 structDeclaration: '🏗️' structName ID
+;
+
+arrayDeclaration: '🤠' ID '=' '{'arrayValues'}'
+;
+
+arrayValues: ((INT | REAL)',')* (INT|REAL)?
 ;
 
 assignValueToStructure: ID '🫱' structProp '=' structPropValue
@@ -118,7 +125,11 @@ expression2:   INT		        #int
        | REAL			        #real
        | ID                     #var
        | valueFromStructProp    #valueFromStructProperty
+       | arrValue               #valueFromArray
        | '(' expression0 ')'	#par
+;
+
+arrValue: ID '[' INT ']'
 ;
 
 valueFromStructProp: ID '🫱' structProperty
