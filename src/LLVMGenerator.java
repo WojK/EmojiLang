@@ -306,4 +306,27 @@ public class LLVMGenerator {
         register++;
         addTextDependOnScope();
     }
+
+    public static void createStructure(String structName, String[] types) {
+        buffer += "%struct." + structName + " = type { ";
+        for(int i = 0; i < types.length; i++) {
+            buffer += types[i];
+            if(i != types.length - 1) buffer += ", ";
+        }
+        buffer += " }\n";
+        addTextDependOnScope();
+    }
+
+    public static void declareStructure(String structTypeName) {
+        buffer += "%"+register+" = alloca %struct." + structTypeName+"\n";
+        register++;
+        addTextDependOnScope();
+    }
+
+    public static void getPtrToStructProp(String structName, String structVariableName, int indexInStruct) {
+        buffer += "%"+register+" = getelementptr inbounds %struct."+structName
+                +", %struct." +structName+"* %"+structVariableName+", i32 0, i32 "+indexInStruct+"\n";
+        register++;
+        addTextDependOnScope();
+    }
 }

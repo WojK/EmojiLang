@@ -78,6 +78,36 @@ public interface EmojiLangListener extends ParseTreeListener {
 	 */
 	void exitFunBlock(EmojiLangParser.FunBlockContext ctx);
 	/**
+	 * Enter a parse tree produced by {@link EmojiLangParser#structDef}.
+	 * @param ctx the parse tree
+	 */
+	void enterStructDef(EmojiLangParser.StructDefContext ctx);
+	/**
+	 * Exit a parse tree produced by {@link EmojiLangParser#structDef}.
+	 * @param ctx the parse tree
+	 */
+	void exitStructDef(EmojiLangParser.StructDefContext ctx);
+	/**
+	 * Enter a parse tree produced by {@link EmojiLangParser#structBlock}.
+	 * @param ctx the parse tree
+	 */
+	void enterStructBlock(EmojiLangParser.StructBlockContext ctx);
+	/**
+	 * Exit a parse tree produced by {@link EmojiLangParser#structBlock}.
+	 * @param ctx the parse tree
+	 */
+	void exitStructBlock(EmojiLangParser.StructBlockContext ctx);
+	/**
+	 * Enter a parse tree produced by {@link EmojiLangParser#structValueTypes}.
+	 * @param ctx the parse tree
+	 */
+	void enterStructValueTypes(EmojiLangParser.StructValueTypesContext ctx);
+	/**
+	 * Exit a parse tree produced by {@link EmojiLangParser#structValueTypes}.
+	 * @param ctx the parse tree
+	 */
+	void exitStructValueTypes(EmojiLangParser.StructValueTypesContext ctx);
+	/**
 	 * Enter a parse tree produced by {@link EmojiLangParser#stat}.
 	 * @param ctx the parse tree
 	 */
@@ -87,6 +117,56 @@ public interface EmojiLangListener extends ParseTreeListener {
 	 * @param ctx the parse tree
 	 */
 	void exitStat(EmojiLangParser.StatContext ctx);
+	/**
+	 * Enter a parse tree produced by {@link EmojiLangParser#structDeclaration}.
+	 * @param ctx the parse tree
+	 */
+	void enterStructDeclaration(EmojiLangParser.StructDeclarationContext ctx);
+	/**
+	 * Exit a parse tree produced by {@link EmojiLangParser#structDeclaration}.
+	 * @param ctx the parse tree
+	 */
+	void exitStructDeclaration(EmojiLangParser.StructDeclarationContext ctx);
+	/**
+	 * Enter a parse tree produced by {@link EmojiLangParser#assignValueToStructure}.
+	 * @param ctx the parse tree
+	 */
+	void enterAssignValueToStructure(EmojiLangParser.AssignValueToStructureContext ctx);
+	/**
+	 * Exit a parse tree produced by {@link EmojiLangParser#assignValueToStructure}.
+	 * @param ctx the parse tree
+	 */
+	void exitAssignValueToStructure(EmojiLangParser.AssignValueToStructureContext ctx);
+	/**
+	 * Enter a parse tree produced by {@link EmojiLangParser#structProp}.
+	 * @param ctx the parse tree
+	 */
+	void enterStructProp(EmojiLangParser.StructPropContext ctx);
+	/**
+	 * Exit a parse tree produced by {@link EmojiLangParser#structProp}.
+	 * @param ctx the parse tree
+	 */
+	void exitStructProp(EmojiLangParser.StructPropContext ctx);
+	/**
+	 * Enter a parse tree produced by {@link EmojiLangParser#structPropValue}.
+	 * @param ctx the parse tree
+	 */
+	void enterStructPropValue(EmojiLangParser.StructPropValueContext ctx);
+	/**
+	 * Exit a parse tree produced by {@link EmojiLangParser#structPropValue}.
+	 * @param ctx the parse tree
+	 */
+	void exitStructPropValue(EmojiLangParser.StructPropValueContext ctx);
+	/**
+	 * Enter a parse tree produced by {@link EmojiLangParser#structName}.
+	 * @param ctx the parse tree
+	 */
+	void enterStructName(EmojiLangParser.StructNameContext ctx);
+	/**
+	 * Exit a parse tree produced by {@link EmojiLangParser#structName}.
+	 * @param ctx the parse tree
+	 */
+	void exitStructName(EmojiLangParser.StructNameContext ctx);
 	/**
 	 * Enter a parse tree produced by {@link EmojiLangParser#fname}.
 	 * @param ctx the parse tree
@@ -346,6 +426,18 @@ public interface EmojiLangListener extends ParseTreeListener {
 	 */
 	void exitVar(EmojiLangParser.VarContext ctx);
 	/**
+	 * Enter a parse tree produced by the {@code valueFromStructProperty}
+	 * labeled alternative in {@link EmojiLangParser#expression2}.
+	 * @param ctx the parse tree
+	 */
+	void enterValueFromStructProperty(EmojiLangParser.ValueFromStructPropertyContext ctx);
+	/**
+	 * Exit a parse tree produced by the {@code valueFromStructProperty}
+	 * labeled alternative in {@link EmojiLangParser#expression2}.
+	 * @param ctx the parse tree
+	 */
+	void exitValueFromStructProperty(EmojiLangParser.ValueFromStructPropertyContext ctx);
+	/**
 	 * Enter a parse tree produced by the {@code par}
 	 * labeled alternative in {@link EmojiLangParser#expression2}.
 	 * @param ctx the parse tree
@@ -357,6 +449,26 @@ public interface EmojiLangListener extends ParseTreeListener {
 	 * @param ctx the parse tree
 	 */
 	void exitPar(EmojiLangParser.ParContext ctx);
+	/**
+	 * Enter a parse tree produced by {@link EmojiLangParser#valueFromStructProp}.
+	 * @param ctx the parse tree
+	 */
+	void enterValueFromStructProp(EmojiLangParser.ValueFromStructPropContext ctx);
+	/**
+	 * Exit a parse tree produced by {@link EmojiLangParser#valueFromStructProp}.
+	 * @param ctx the parse tree
+	 */
+	void exitValueFromStructProp(EmojiLangParser.ValueFromStructPropContext ctx);
+	/**
+	 * Enter a parse tree produced by {@link EmojiLangParser#structProperty}.
+	 * @param ctx the parse tree
+	 */
+	void enterStructProperty(EmojiLangParser.StructPropertyContext ctx);
+	/**
+	 * Exit a parse tree produced by {@link EmojiLangParser#structProperty}.
+	 * @param ctx the parse tree
+	 */
+	void exitStructProperty(EmojiLangParser.StructPropertyContext ctx);
 	/**
 	 * Enter a parse tree produced by {@link EmojiLangParser#read}.
 	 * @param ctx the parse tree

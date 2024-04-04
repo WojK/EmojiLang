@@ -2,11 +2,10 @@ import generated.EmojiLangBaseListener;
 import generated.EmojiLangParser;
 import org.antlr.v4.runtime.tree.ParseTree;
 
-import java.util.HashMap;
-import java.util.Map;
-import java.util.Stack;
+import java.util.*;
+import java.util.stream.Collectors;
 
-enum VarType{ INT, REAL, VARIABLE }
+enum VarType{ INT, REAL, VARIABLE, STRUCT_PROP_INT, STRUCT_PROP_REAL}
 
 class Value{
     public String name;
@@ -46,6 +45,17 @@ class Value{
     }
 }
 
+class Structure {
+    String name;
+    List<String> types;
+    List<String> propNames;
+    public Structure(String name, List<String> types, List<String> propNames){
+        this.name = name;
+        this.types = types;
+        this.propNames = propNames;
+    }
+}
+
 public class LLVMActions extends EmojiLangBaseListener {
 
     Map<String, VarType> globalVariables = new HashMap<String, VarType>();
@@ -53,6 +63,12 @@ public class LLVMActions extends EmojiLangBaseListener {
     Map<String, String> localVariablesMapped = new HashMap<String, String>();
 
     Map<String, String> functionsWithRetType = new HashMap<>();
+    Map<String, Structure> nameToStructure = new HashMap<>();
+    Map<String, String> structuresVariablesMappedNames = new HashMap<>();
+
+    Map<String, Structure> structuresVariablesToStructure = new HashMap<>();
+
+
 
     Stack<Value> stack = new Stack<Value>();
 
@@ -152,6 +168,35 @@ public class LLVMActions extends EmojiLangBaseListener {
 
         stack.push( new Value(ID, VarType.VARIABLE) );
     }
+
+    @Override
+    public void exitValueFromStructProperty(EmojiLangParser.ValueFromStructPropertyContext ctx) {
+        String structVariableName = ctx.valueFromStructProp().ID().getText();
+        if (!structuresVariablesMappedNames.containsKey(structVariableName)) {
+            error(ctx.getStart().getLine(), "Unknown variable " + structVariableName);
+        }
+        String mappedVariableName = structuresVariablesMappedNames.get(structVariableName);
+        Structure structure = structuresVariablesToStructure.get(structVariableName);
+
+        String propName = ctx.valueFromStructProp().structProperty().getText();
+        if (!structure.propNames.contains(propName)) {
+            error(ctx.getStart().getLine(), "Unknown struct property " + propName);
+        }
+        String type = structure.types.get(structure.propNames.indexOf(propName));
+
+        LLVMGenerator.getPtrToStructProp(structure.name, mappedVariableName, structure.propNames.indexOf(propName));
+
+        if (type.equals("i32")) {
+            LLVMGenerator.load_i32(String.valueOf(LLVMGenerator.register - 1));
+            stack.push(new Value("%" + (LLVMGenerator.register - 1), VarType.INT));
+        }
+        if (type.equals("double")) {
+            LLVMGenerator.load_i32(String.valueOf(LLVMGenerator.register - 1));
+            stack.push(new Value("%" + (LLVMGenerator.register - 1), VarType.REAL));
+        }
+    }
+
+
 
     @Override
     public void exitPrint(EmojiLangParser.PrintContext ctx) {
@@ -415,6 +460,59 @@ public class LLVMActions extends EmojiLangBaseListener {
             }
         }
         LLVMGenerator.execFunc(ID, functionsWithRetType.get(ID), argsTypes, argsNames);
+    }
+
+    @Override
+    public void exitStructDef(EmojiLangParser.StructDefContext ctx) {
+        String structName = ctx.ID().getText();
+        if(nameToStructure.containsKey(structName)) error(ctx.getStart().getLine(), "Struct with given name already exists " + structName);
+        List<String> types = ctx.structBlock().structValueTypes().stream().map(x->{
+            if(Objects.equals(x.getText(), "real")) return "double";
+            if(Objects.equals(x.getText(), "int")) return "i32";
+            return null;
+        }).collect(Collectors.toList());
+
+        List<String> propNames = ctx.structBlock().ID().stream().map(ParseTree::getText).collect(Collectors.toList());
+        LLVMGenerator.global = true;
+        LLVMGenerator.createStructure(structName, types.toArray(String[]::new));
+        LLVMGenerator.global = false;
+        Structure structure = new Structure(structName, types, propNames);
+        nameToStructure.put(structName, structure);
+    }
+
+    @Override
+    public void exitStructDeclaration(EmojiLangParser.StructDeclarationContext ctx) {
+        String structVariableName = ctx.ID().getText();
+        String structTypeName = ctx.structName().getText();
+        LLVMGenerator.declareStructure(structTypeName);
+        structuresVariablesToStructure.put(structVariableName, nameToStructure.get(structTypeName));
+        structuresVariablesMappedNames.put(structVariableName, String.valueOf(LLVMGenerator.register-1));
+    }
+
+    @Override
+    public void enterAssignValueToStructure(EmojiLangParser.AssignValueToStructureContext ctx) {
+        String structVariableName = ctx.ID().getText();
+        if(!structuresVariablesMappedNames.containsKey(structVariableName)) error(ctx.getStart().getLine(), "Struct not initialized " + structVariableName);
+        String propName = ctx.structProp().getText();
+        Structure s = structuresVariablesToStructure.get(structVariableName);
+        if(!s.propNames.contains(propName)) error(ctx.getStart().getLine(), "Struct does not have this prop name " + propName);
+        String propType = s.types.get(s.propNames.indexOf(propName));
+        if(propType.equals("i32") && ctx.structPropValue().INT() == null || propType.equals("double") && ctx.structPropValue().REAL() == null ){
+            error(ctx.getStart().getLine(), "Trying to assign inappropriate value " + propName);
+        }
+        String mappedVariable = structuresVariablesMappedNames.get(structVariableName);
+        if(ctx.structPropValue().INT()!=null){
+            String value = ctx.structPropValue().INT().getText();
+            LLVMGenerator.getPtrToStructProp(s.name, mappedVariable, s.propNames.indexOf(propName));
+            LLVMGenerator.assign_i32(String.valueOf(LLVMGenerator.register-1),value);
+        }
+
+        if(ctx.structPropValue().REAL()!=null){
+            String value = ctx.structPropValue().REAL().getText();
+            LLVMGenerator.getPtrToStructProp(s.name, mappedVariable, s.propNames.indexOf(propName));
+            LLVMGenerator.assign_double(String.valueOf(LLVMGenerator.register-1),value);
+        }
+
     }
 
     void error ( int line, String msg){

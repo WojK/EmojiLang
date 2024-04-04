@@ -6,7 +6,7 @@ prog: globalStat*
 globalStat: ( globalDeclatarion
     | functionExec ) END_STAT
     | function
-
+    | structDef
 ;
 
 function: '🤙' retType fname '(' fargs ')' OPEN_BRACKET funBlock ret CLOSE_BRACKET
@@ -24,13 +24,39 @@ fargsExec: (ID',')* (ID)?
 funBlock: stat*
 ;
 
+structDef: '🏗️' ID OPEN_BRACKET structBlock CLOSE_BRACKET
+;
+
+structBlock: ( structValueTypes ID END_STAT)*
+;
+
+structValueTypes: 'int' | 'real'
+;
+
 stat: ( declaration
     | assignment
     | read
     | print
-    | functionExec ) END_STAT
+    | functionExec
+    | structDeclaration
+    | assignValueToStructure ) END_STAT
     | if
     | loop
+;
+
+structDeclaration: '🏗️' structName ID
+;
+
+assignValueToStructure: ID '🫱' structProp '=' structPropValue
+;
+
+structProp: ID
+;
+
+structPropValue: INT | REAL
+;
+
+structName: ID
 ;
 
 fname: ID
@@ -91,7 +117,14 @@ expression1:  expression2			    #single1
 expression2:   INT		        #int
        | REAL			        #real
        | ID                     #var
+       | valueFromStructProp    #valueFromStructProperty
        | '(' expression0 ')'	#par
+;
+
+valueFromStructProp: ID '🫱' structProperty
+;
+
+structProperty: ID
 ;
 
 read: READ '(' ID ')'
